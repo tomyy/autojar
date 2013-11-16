@@ -1,0 +1,3 @@
+Main-Class: de.monoped.autojar.Autojar
+
+
