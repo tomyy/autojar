@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd ~/java/autojar
+java -cp classes/production/autojar:lib/bcel.jar:lib/log4j.jar:src/log4j de.monoped.autojar.Autojar -avc classes/production/autojar:lib/bcel.jar:lib/log4j.jar:src/log4j -p log4j -o ${1-autojarneu.jar} -m autojar.mf -p log4j -- "@classlist" log4j.properties
