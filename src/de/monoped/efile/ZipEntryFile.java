@@ -126,8 +126,7 @@ public class ZipEntryFile
     //----------------------------------------------------------------------
 
     public void copyFrom(File src) 
-        throws IOException, FileNotFoundException
-    {
+        throws IOException {
         throw new IOException(zip.getName() + ": can't write");
     }
 
@@ -193,8 +192,7 @@ public class ZipEntryFile
     //----------------------------------------------------------------------
 
     public InputStream getInputStream()
-        throws IOException, FileNotFoundException
-    {
+        throws IOException {
         if (node == null)
             throw new FileNotFoundException(path + " (No such file or directory)");
 
@@ -249,8 +247,7 @@ public class ZipEntryFile
     //----------------------------------------------------------------------
 
     public OutputStream getOutputStream()
-         throws IOException, FileNotFoundException
-    {
+         throws IOException {
         throw new IOException(zip.getName() + ": can't write");
     }
 
@@ -353,8 +350,7 @@ public class ZipEntryFile
     //----------------------------------------------------------------------
 
     public void putBytes(byte[] bytes)
-         throws IOException, FileNotFoundException
-    {
+         throws IOException {
         throw new IOException(path + ": can't write");
     }
 
@@ -370,9 +366,7 @@ public class ZipEntryFile
 
     //----------------------------------------------------------------------
 
-    public EFile setPath(String path)
-        throws IOException
-    {
+    public EFile setPath(String path) {
         ZipEntryFile newfile = (ZipEntryFile)clone();
 
         newfile.path = path;
@@ -418,14 +412,7 @@ public class ZipEntryFile
             if (list == null || i >= list.length)
                 throw new NoSuchElementException(String.valueOf(i));
 
-            try
-            {
-                return setPath((path.equals("/") ? path : path + "/") + list[i++]);
-            }
-            catch (IOException ex)
-            {
-                return null;
-            }
+            return setPath((path.equals("/") ? path : path + "/") + list[i++]);
         }
 
         //----------------------------------------------------------------------

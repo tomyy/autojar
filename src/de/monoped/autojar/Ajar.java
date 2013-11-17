@@ -17,18 +17,24 @@ package de.monoped.autojar;
  * monoped@users.sourceforge.net
  */
 
-import java.io.*;
-import java.util.*;
-import java.util.jar.*;
-import java.util.zip.*;
-import de.monoped.efile.*;
-import de.monoped.utils.*;
-
-import org.apache.bcel.*;
+import de.monoped.efile.EFile;
+import de.monoped.utils.FileUtils;
+import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.*;
 import org.apache.bcel.generic.*;
-import org.apache.bcel.util.*;
-import org.apache.log4j.*;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
+import java.io.*;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 /** Class providing a public interface (used by Autojar and Eclipse plugin).
  *  @author Bernd Eggink (monoped@users.sourceforge.net)  
@@ -276,7 +282,7 @@ public class Ajar
      */
 
     private void addClass(EFile classFile)
-        throws FileNotFoundException, IOException
+        throws IOException
     {
         String  base = classFile.getBase(),
                 path = classFile.getPath();
@@ -343,7 +349,7 @@ public class Ajar
     //----------------------------------------------------------------------
 
     private void addResource(EFile resoFile)
-        throws FileNotFoundException, IOException
+        throws IOException
     {
         String  base = resoFile.getBase(),
                 path = resoFile.getPath();
@@ -415,7 +421,7 @@ public class Ajar
      */
 
     private void copyToJar(EFile file)
-        throws FileNotFoundException, IOException
+        throws IOException
     {
         byte[]  bytes = file.getBytes();
         String  base = file.getBase(),

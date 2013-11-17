@@ -51,8 +51,7 @@ public class LocalFile
     //----------------------------------------------------------------------
 
     public void copyFrom(File src)
-        throws IOException, FileNotFoundException
-    {
+        throws IOException {
         OutputStream    out = getOutputStream();
         InputStream     in = new FileInputStream(src);
         byte[]          buf = new byte[4096];
@@ -153,8 +152,7 @@ public class LocalFile
     //----------------------------------------------------------------------
 
     public InputStream getInputStream() 
-        throws IOException, FileNotFoundException 
-    {
+        throws IOException {
         return new FileInputStream(file);
     }
 
@@ -191,8 +189,7 @@ public class LocalFile
     //----------------------------------------------------------------------
 
     public OutputStream getOutputStream()
-         throws IOException, FileNotFoundException
-    {
+         throws IOException {
         return new FileOutputStream(file);
     }
 
@@ -257,8 +254,7 @@ public class LocalFile
     //----------------------------------------------------------------------
 
     public void putBytes(byte[] bytes)
-        throws IOException, FileNotFoundException
-    {
+        throws IOException {
         OutputStream out = getOutputStream();
         
         out.write(bytes);
@@ -277,9 +273,7 @@ public class LocalFile
 
     //----------------------------------------------------------------------
 
-    public EFile setPath(String path)
-        throws IOException
-    {
+    public EFile setPath(String path) {
         return new LocalFile(root, path);
     }
 

@@ -27,15 +27,15 @@ import java.util.*;
 public interface EFile
 {
     void            close();
-    void            copyFrom(File src) throws IOException, FileNotFoundException;
+    void            copyFrom(File src) throws IOException;
     boolean         delete();
     boolean         delete(boolean recursive);
     boolean         exists();
     String          getBase();
-    byte[]          getBytes() throws IOException, FileNotFoundException;
+    byte[]          getBytes() throws IOException;
     String          getName();
-    InputStream     getInputStream() throws IOException, FileNotFoundException;
-    OutputStream    getOutputStream() throws IOException, FileNotFoundException;
+    InputStream     getInputStream() throws IOException;
+    OutputStream    getOutputStream() throws IOException;
     String          getParent();
     String          getPath();
     String          getAbsolutePath();
@@ -45,9 +45,9 @@ public interface EFile
     Iterator        iterator();
     Iterator        iterator(String filter);
     boolean         mkdirs();
-    void            putBytes(byte[] bytes) throws IOException, FileNotFoundException;
+    void            putBytes(byte[] bytes) throws IOException;
     EFile           setName(String name);
-    EFile           setPath(String path) throws IOException;
+    EFile           setPath(String path);
     String          toString();
 }
 
