@@ -79,7 +79,7 @@ public class Ajar
     private HashSet<String> zipEntries;
     private HashSet<String> usedSources;
     private Level                   logLevel;
-    private List<String>                    classPathList;          // user supplied class path
+    private List<String>            classPathList;          // user supplied class path
     private List<String> extensionList;
     private List excludes;
     private List<String> fileExcludes;
@@ -94,24 +94,24 @@ public class Ajar
 
     /** Create an Ajar object.
      *
-     *  @param outfile          Output file (jar).
+     * @param outfile          Output file (jar).
      *  @param classPathList    List containing user supplied class path components.
-     *  @param excludes         List containing class prefixes to exclude.
-     *  @param filePathList     List containing file path components.
-     *  @param manifest         File containing additional manifest entries.
-     *  @param dynamic          How to handle Class.ForName() etc. One of {@link #DYN_OFF DYN_OFF}, 
-     *                              {@link #DYN_WARN DYN_WARN}, 
-     *                              {@link #DYN_AUTO DYN_AUTO}. 
-     *  @param dynresource      If true, try to find and add dynamically loaded resources.
-     *  @param searchExtensions If true, search extdirs for classes.
-     *  @param bothpaths        Use class path for file path.
-     *  @param level            Verbosity level. One of {@link #QUIET_LEVEL QUIET_LEVEL},
-     *                          {@link #STD_LEVEL STD_LEVEL},
-     *                          {@link #VERBOSE_LEVEL VERBOSE_LEVEL},
-     *                          {@link #DEBUG_LEVEL DEBUG_LEVEL}.
+     * @param excludes         List containing class prefixes to exclude.
+     * @param filePathList     List containing file path components.
+     * @param manifest         File containing additional manifest entries.
+     * @param dynamic          How to handle Class.ForName() etc. One of {@link #DYN_OFF DYN_OFF},
+*                              {@link #DYN_WARN DYN_WARN},
+*                              {@link #DYN_AUTO DYN_AUTO}.
+     * @param dynresource      If true, try to find and add dynamically loaded resources.
+     * @param searchExtensions If true, search extdirs for classes.
+     * @param bothpaths        Use class path for file path.
+     * @param level            Verbosity level. One of {@link #QUIET_LEVEL QUIET_LEVEL},
+*                          {@link #STD_LEVEL STD_LEVEL},
+*                          {@link #VERBOSE_LEVEL VERBOSE_LEVEL},
+*                          {@link #DEBUG_LEVEL DEBUG_LEVEL}.
      */
 
-    public Ajar(File outfile, List classPathList, List excludes, List filePathList,
+    public Ajar(File outfile, List<String> classPathList, List<String> excludes, List<String> filePathList,
             File manifest, int dynamic, boolean dynresource, 
             boolean searchExtensions, boolean bothpaths,
             int level)

@@ -17,10 +17,14 @@ package de.monoped.autojar;
  * monoped@users.sourceforge.net
  */
 
-import de.monoped.utils.*;
-import java.io.*;
-import java.util.*;
-import org.apache.log4j.*;
+import de.monoped.utils.FileExpand;
+import de.monoped.utils.Getopt;
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Autojar main class 
  *  @author Bernd Eggink (monoped@users.sourceforge.net)  
@@ -69,7 +73,7 @@ public class Autojar
      *  @param list         List to which append.
      */
 
-    private static void addPathComponents(String path, List list)
+    private static void addPathComponents(String path, List<String> list)
     {
         String[] comps = path.split(File.pathSeparator);
 
@@ -139,8 +143,8 @@ public class Autojar
         boolean     bothpaths = false,
                     searchExtensions = false,
                     dynresource = false;
-        ArrayList   excludes = new ArrayList(),
-                    classPathList = new ArrayList(),
+        ArrayList   excludes = new ArrayList<String>(),
+                    classPathList = new ArrayList<String>(),
                     filePathList = null;
         int         dynamic = Ajar.DYN_OFF;
         File        basedir = null, 
