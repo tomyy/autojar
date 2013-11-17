@@ -25,7 +25,7 @@ public class Node
 {
     Node            parent;
     String          name;
-    ArrayList       children;
+    ArrayList<Node> children;
 
     //----------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ public class Node
     {
         this.name = name;
         this.parent = parent;
-        children = new ArrayList();
+        children = new ArrayList<Node>();
     }
 
     //----------------------------------------------------------------------
@@ -48,9 +48,9 @@ public class Node
 
     Node getChild(String name)
     {
-        for (Iterator it = children.iterator(); it.hasNext(); )
+        for (Iterator<Node> it = children.iterator(); it.hasNext(); )
         {
-            Node    child = (Node)it.next();
+            Node    child = it.next();
             String  childName = child.getName();
 
             if (childName.endsWith("/"))
@@ -102,7 +102,7 @@ public class Node
 
     //----------------------------------------------------------------------
 
-    public Iterator iterator()
+    public Iterator<Node> iterator()
     {
         return children.iterator();
     }
@@ -116,20 +116,20 @@ public class Node
 
     //----------------------------------------------------------------------
 
-    public List treeList()
+    public List<String> treeList()
     {
-        ArrayList   list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
         String      path = getPath();
 
-        for (Iterator it = children.iterator(); it.hasNext(); )
-            ((Node)it.next()).treeList(null, list);
+        for (Iterator<Node> it = children.iterator(); it.hasNext(); )
+            (it.next()).treeList(null, list);
 
         return list;
     }
 
     //----------------------------------------------------------------------
 
-    private void treeList(String prefix, List list)
+    private void treeList(String prefix, List<String> list)
     {
         if (isDirectory())
         {
@@ -138,8 +138,8 @@ public class Node
             else
                 prefix = name + "/";
         
-            for (Iterator it = children.iterator(); it.hasNext(); )
-                ((Node)it.next()).treeList(prefix, list);
+            for (Iterator<Node> it = children.iterator(); it.hasNext(); )
+                (it.next()).treeList(prefix, list);
         }
         else
             list.add(prefix == null ? name : prefix + name);

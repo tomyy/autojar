@@ -17,9 +17,13 @@
 
 package de.monoped.efile;
 
+import de.monoped.utils.OSFilter;
+
 import java.io.*;
-import java.util.*;
-import de.monoped.utils.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class LocalFile
     implements EFile
@@ -87,17 +91,19 @@ public class LocalFile
     {
         File[]  files = dir.listFiles();
 
-        for (int i = 0; i < files.length; ++i)
-        {
-            File f = files[i];
-
-            if (f.isDirectory())
+        if (files != null) {
+            for (int i = 0; i < files.length; ++i)
             {
-                if (! deleteDir(f))
+                File f = files[i];
+
+                if (f.isDirectory())
+                {
+                    if (! deleteDir(f))
+                        return false;
+                }
+                else if (! f.delete())
                     return false;
             }
-            else if (! f.delete())
-                return false;
         }
 
         dir.delete();
@@ -213,7 +219,7 @@ public class LocalFile
     {
         if (filter.startsWith("**"))
         {
-            ArrayList list = new ArrayList();
+            ArrayList<EFile> list = new ArrayList<EFile>();
 
             treeList(file, null, list);
             return (String[])list.toArray(new String[0]);
@@ -235,7 +241,7 @@ public class LocalFile
     {
         if (filter.equals("**"))
         {
-            ArrayList list = new ArrayList();
+            ArrayList<EFile> list = new ArrayList<EFile>();
 
             treeList(file, null, list);
             return list.iterator();
@@ -286,7 +292,7 @@ public class LocalFile
 
     //----------------------------------------------------------------------
 
-    private void treeList(File file, String prefix, List list)
+    private void treeList(File file, String prefix, List<EFile> list)
     {
         if (! file.exists())
             return;

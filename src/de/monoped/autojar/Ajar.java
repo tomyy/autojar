@@ -265,7 +265,7 @@ public class Ajar
  
     /** Create an Ajar object with standard log level. */
 
-    public Ajar(File outfile, List classPathList, List excludes, List filePathList,
+    public Ajar(File outfile, List<String> classPathList, List<String> excludes, List<String> filePathList,
             File manifest, int dynamic, boolean dynresource, 
             boolean searchExtensions, boolean bothpaths)
         throws IOException
@@ -351,8 +351,7 @@ public class Ajar
     private void addResource(EFile resoFile)
         throws IOException
     {
-        String  base = resoFile.getBase(),
-                path = resoFile.getPath();
+        String  base = resoFile.getBase();
 
         // base excluded?
         

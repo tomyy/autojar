@@ -143,9 +143,9 @@ public class Autojar
         boolean     bothpaths = false,
                     searchExtensions = false,
                     dynresource = false;
-        ArrayList   excludes = new ArrayList<String>(),
-                    classPathList = new ArrayList<String>(),
-                    filePathList = null;
+        ArrayList<String> excludes = new ArrayList<String>();
+        ArrayList<String> classPathList = new ArrayList<String>();
+        ArrayList<String> filePathList = null;
         int         dynamic = Ajar.DYN_OFF;
         File        basedir = null, 
                     manifest = null, 
@@ -229,7 +229,7 @@ public class Autojar
                 case 'p':   // add to file path
                             
                             if (filePathList == null)
-                                filePathList = new ArrayList();
+                                filePathList = new ArrayList<String>();
 
                             addPathComponents(opts.getOptarg(), filePathList);
                             break;

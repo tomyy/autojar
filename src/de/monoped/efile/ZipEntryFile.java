@@ -51,9 +51,9 @@ public class ZipEntryFile
 
         // build tree
 
-        for (Enumeration entries = zip.entries(); entries.hasMoreElements(); )
+        for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); )
         {
-            ZipEntry    entry = (ZipEntry)entries.nextElement();
+            ZipEntry    entry = entries.nextElement();
             String[]    comps = entry.getName().split("/");
             Node        base = rootNode;
             int         icomp;
@@ -68,9 +68,9 @@ public class ZipEntryFile
 
                 found = false;
 
-                for (Iterator it = base.iterator(); it.hasNext(); )
+                for (Iterator<Node> it = base.iterator(); it.hasNext(); )
                 {
-                    Node    child = (Node)it.next(); 
+                    Node    child = it.next();
                     String  childName = child.getName();
 
                     if (childName.equals(comp))
@@ -304,9 +304,9 @@ public class ZipEntryFile
         String[]    names = new String[n];
         int         i = 0;
 
-        for (Iterator it = node.iterator(); it.hasNext(); )
+        for (Iterator<Node> it = node.iterator(); it.hasNext(); )
         {
-            Node nod = (Node)it.next();
+            Node nod = it.next();
 
             names[i++] = nod.getName();
         }
@@ -321,7 +321,7 @@ public class ZipEntryFile
         if (node == null)
             return null;
 
-        ArrayList   names = new ArrayList();
+        ArrayList<String> names = new ArrayList<String>();
 
         if (filter.equals("**"))
             return (String[])node.treeList().toArray(new String[0]);
@@ -329,9 +329,9 @@ public class ZipEntryFile
         OSFilter    osfilter = new OSFilter(filter.replace(File.separatorChar, '/'));
         File        parent = new File(Utils.getParentPath(path));
 
-        for (Iterator it = node.iterator(); it.hasNext(); )
+        for (Iterator<Node> it = node.iterator(); it.hasNext(); )
         {
-            Node child = (Node)it.next();
+            Node child = it.next();
 
             if (osfilter.accept(parent, child.getName()))
                 names.add(child.getName());
