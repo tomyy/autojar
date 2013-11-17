@@ -863,7 +863,6 @@ public class Ajar
     {
         JavaClass       klass = new ClassParser(in, bcelName).parse();
         Avisitor        visitor = new Avisitor(this, klass);
-        ConstantPoolGen pool = new ConstantPoolGen(klass.getConstantPool());
 
         new DescendingVisitor(klass, visitor).visit();
         in.close();
