@@ -17,11 +17,18 @@ package de.monoped.autojar;
  * monoped@users.sourceforge.net
  */
 
-import java.util.*;
-import java.util.zip.*;
-import java.io.*;
-import de.monoped.efile.*;
-import de.monoped.utils.*;
+import de.monoped.efile.EFile;
+import de.monoped.efile.LocalFile;
+import de.monoped.efile.ZipEntryFile;
+import de.monoped.utils.FileExpand;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.zip.ZipFile;
 
 /** Class representing a lookup path.
  *  @author Bernd Eggink (monoped@users.sourceforge.net)
@@ -29,7 +36,7 @@ import de.monoped.utils.*;
   
 class FilePath
 {
-    private List componentList;
+    private List<EFile> componentList;
 
     //----------------------------------------------------------------------
 
@@ -37,7 +44,7 @@ class FilePath
 
     FilePath()
     {
-        componentList = new ArrayList();
+        componentList = new ArrayList<EFile>();
     }
 
     //----------------------------------------------------------------------
@@ -121,7 +128,7 @@ class FilePath
 
     /** Get the component list. */
 
-    List getList()
+    List<EFile> getList()
     {
         return componentList;
     }
@@ -139,9 +146,9 @@ class FilePath
     EFile lookupFile(String name)
         throws IOException
     {
-        for (Iterator it = componentList.iterator(); it.hasNext(); )
+        for (Iterator<EFile> it = componentList.iterator(); it.hasNext(); )
         {
-            EFile comp = (EFile)it.next();
+            EFile comp = it.next();
 
             if (comp == null) 
                 continue;
@@ -163,9 +170,7 @@ class FilePath
      *  @return         List of Efiles found.
      */
 
-    List lookupPattern(String path)
-        throws IOException
-    {
+    List lookupPattern(String path) {
         File        file = new File(path);
         String      base = file.getParent();
         
@@ -173,9 +178,9 @@ class FilePath
             base = base.replace(File.separatorChar, '/');
 
         String      pattern = file.getName();
-        ArrayList   flist = new ArrayList();
+        ArrayList<EFile>   flist = new ArrayList<EFile>();
 
-        for (Iterator it = componentList.iterator(); it.hasNext(); )
+        for (Iterator<EFile> it = componentList.iterator(); it.hasNext(); )
         {
             EFile   comp = ((EFile)it.next());
             

@@ -75,18 +75,18 @@ public class Ajar
     private String                  mainClass;
     private ZipOutputStream         jarout;
     private FilePath                classpath, filepath;
-    private HashSet                 doneFiles,
-                                    zipEntries,
-                                    usedSources;
+    private HashSet<String> doneFiles;
+    private HashSet<String> zipEntries;
+    private HashSet<String> usedSources;
     private Level                   logLevel;
-    private List                    classPathList,          // user supplied class path
-                                    extensionList,      
-                                    excludes,
-                                    fileExcludes;
+    private List<String>                    classPathList;          // user supplied class path
+    private List<String> extensionList;
+    private List excludes;
+    private List<String> fileExcludes;
     private byte[]                  buffer;
-    private TreeSet                 forNameDyn,
-                                    getResourceDyn,
-                                    missing;
+    private TreeSet<String> forNameDyn;
+    private TreeSet<String> getResourceDyn;
+    private TreeSet<String> missing;
     private Logger                  logger;
     private String[]                bootPathComps;
             
@@ -123,7 +123,7 @@ public class Ajar
         this.searchExtensions = searchExtensions;
         this.bothpaths = bothpaths;
         this.classPathList = classPathList;
-        extensionList = new ArrayList();
+        extensionList = new ArrayList<String>();
 
         logger = Logger.getRootLogger();
 
@@ -141,14 +141,14 @@ public class Ajar
 
         logger.setLevel(logLevel);
 
-        doneFiles = new HashSet();
-        zipEntries = new HashSet();
-        usedSources = new HashSet();
-        fileExcludes = new ArrayList();
+        doneFiles = new HashSet<String>();
+        zipEntries = new HashSet<String>();
+        usedSources = new HashSet<String>();
+        fileExcludes = new ArrayList<String>();
         buffer = new byte[8192];
-        forNameDyn = new TreeSet();
-        getResourceDyn = new TreeSet();
-        missing = new TreeSet();
+        forNameDyn = new TreeSet<String>();
+        getResourceDyn = new TreeSet<String>();
+        missing = new TreeSet<String>();
 
         classpath = new FilePath();
         filepath = new FilePath();
@@ -291,9 +291,9 @@ public class Ajar
 
         // test if library is in user class path
 
-        for (Iterator it = classPathList.iterator(); it.hasNext(); )
+        for (Iterator<String> it = classPathList.iterator(); it.hasNext(); )
         {
-            String comp = (String)it.next();
+            String comp = it.next();
 
             if (base.equals(comp))
             {
@@ -308,9 +308,9 @@ public class Ajar
 
             // check if base is an extension archive
 
-            for (Iterator it = extensionList.iterator(); it.hasNext(); )
+            for (Iterator<String> it = extensionList.iterator(); it.hasNext(); )
             {
-                String file = (String)it.next();
+                String file = it.next();
 
                 if (base.equals(file))
                 {
@@ -813,9 +813,9 @@ public class Ajar
         String  path = file.getPath();
         JarFile jarfile = new JarFile(file);
 
-        for (Enumeration entries = jarfile.entries(); entries.hasMoreElements(); )
+        for (Enumeration<JarEntry> entries = jarfile.entries(); entries.hasMoreElements(); )
         {
-            JarEntry    entry = (JarEntry)entries.nextElement();
+            JarEntry    entry = entries.nextElement();
             String      entryName = entry.getName();
 
             if (entryName.startsWith("META-INF"))
@@ -896,9 +896,9 @@ public class Ajar
         String  path = file.getPath();
         ZipFile zipfile = new ZipFile(file);
 
-        for (Enumeration entries = zipfile.entries(); entries.hasMoreElements(); )
+        for (Enumeration<? extends ZipEntry> entries = zipfile.entries(); entries.hasMoreElements(); )
         {
-            ZipEntry    entry = (ZipEntry)entries.nextElement();
+            ZipEntry    entry = entries.nextElement();
             String      entryName = entry.getName();
 
             if (FileUtils.patternMatches(fileExcludes, entryName))
@@ -1158,8 +1158,8 @@ public class Ajar
         {
             String message = "Dynamic loading, unknown classname:";
             
-            for (Iterator it = forNameDyn.iterator(); it.hasNext(); )
-                message += "\n    " + (String)it.next();
+            for (Iterator<String> it = forNameDyn.iterator(); it.hasNext(); )
+                message += "\n    " + it.next();
 
             logger.warn(message);
         }
@@ -1168,8 +1168,8 @@ public class Ajar
         {
             String message = "Resource access, unknown resource name:";
         
-            for (Iterator it = getResourceDyn.iterator(); it.hasNext(); )
-                message += "\n    " + (String)it.next();
+            for (Iterator<String> it = getResourceDyn.iterator(); it.hasNext(); )
+                message += "\n    " + it.next();
 
             logger.warn(message);
         }
@@ -1186,8 +1186,8 @@ public class Ajar
 
         String message = "Missing files:";
 
-        for (Iterator it = missing.iterator(); it.hasNext(); )
-            message += "\n    " + (String)it.next();
+        for (Iterator<String> it = missing.iterator(); it.hasNext(); )
+            message += "\n    " + it.next();
 
         logger.warn(message);
     }
@@ -1198,7 +1198,7 @@ public class Ajar
 
     public void reportUnusedPathComponents()
     {
-        Set             pathSet = new HashSet(classpath.getList());
+        HashSet<EFile> pathSet = new HashSet<EFile>(classpath.getList());
 
         pathSet.addAll(filepath.getList());
 
