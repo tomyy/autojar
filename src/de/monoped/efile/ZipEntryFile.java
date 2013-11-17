@@ -324,7 +324,7 @@ public class ZipEntryFile
         ArrayList<String> names = new ArrayList<String>();
 
         if (filter.equals("**"))
-            return (String[])node.treeList().toArray(new String[0]);
+            return node.treeList().toArray(new String[0]);
         
         OSFilter    osfilter = new OSFilter(filter.replace(File.separatorChar, '/'));
         File        parent = new File(Utils.getParentPath(path));
@@ -337,7 +337,7 @@ public class ZipEntryFile
                 names.add(child.getName());
         }
 
-        return (String[])names.toArray(new String[0]);
+        return names.toArray(new String[0]);
     }
 
     //----------------------------------------------------------------------

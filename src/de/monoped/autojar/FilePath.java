@@ -182,7 +182,7 @@ class FilePath
 
         for (Iterator<EFile> it = componentList.iterator(); it.hasNext(); )
         {
-            EFile   comp = ((EFile)it.next());
+            EFile   comp = it.next();
             
             if (comp == null) 
                 continue;

@@ -222,7 +222,7 @@ public class LocalFile
             ArrayList<EFile> list = new ArrayList<EFile>();
 
             treeList(file, null, list);
-            return (String[])list.toArray(new String[0]);
+            return list.toArray(new String[0]);
         }
 
         return file.list(new OSFilter(filter));

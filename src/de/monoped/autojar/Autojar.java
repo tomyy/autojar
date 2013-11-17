@@ -149,7 +149,7 @@ public class Autojar
         int         dynamic = Ajar.DYN_OFF;
         File        basedir = null, 
                     manifest = null, 
-                    outfile = null;
+                    outfile;
         Ajar        autojar = null;
         Getopt      opts = null;
 

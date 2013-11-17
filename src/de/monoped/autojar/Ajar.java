@@ -530,7 +530,7 @@ public class Ajar
                     }
                 }
                 
-                boolean useClass = false, useLoader = false, 
+                boolean useClass = false,
                         asStream = false;
 
                 if (refClassGetResource != null && refClassGetResource.equals(constant))
@@ -538,14 +538,13 @@ public class Ajar
                 else if (refClassGetStream != null && refClassGetStream.equals(constant))
                     useClass = asStream = true;
                 else if (refLoaderGetResource != null && refLoaderGetResource.equals(constant))
-                    useLoader = true;
+                    ;
                 else if (refLoaderGetStream != null && refLoaderGetStream.equals(constant))
-                    useLoader = asStream = true;
+                    ;
                 else
                     continue;
 
-                String  className = useLoader ? "ClassLoader" : "Class",
-                        methodName = asStream ? "getResourceAsStream" : "getResource",
+                String methodName = asStream ? "getResourceAsStream" : "getResource",
                         call;
 
                 if (pre.getOpcode() == Constants.LDC)       // does pre-instruction load constant?
@@ -1032,7 +1031,7 @@ public class Ajar
         if (doneFiles.contains(path))         // already done?
             return true;
         
-        EFile classFile = null;
+        EFile classFile;
         
         try
         {

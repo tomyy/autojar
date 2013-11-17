@@ -119,7 +119,6 @@ public class Node
     public List<String> treeList()
     {
         ArrayList<String> list = new ArrayList<String>();
-        String      path = getPath();
 
         for (Iterator<Node> it = children.iterator(); it.hasNext(); )
             (it.next()).treeList(null, list);

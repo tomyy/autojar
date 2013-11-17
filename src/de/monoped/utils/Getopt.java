@@ -157,7 +157,7 @@ public class Getopt
                 arglist.add(arg);
         }
         
-        this.argv = (String[])arglist.toArray(new String[0]);
+        this.argv = arglist.toArray(new String[0]);
     }
 
     //----------------------------------------------------------------------
