@@ -22,142 +22,143 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
-/** Visitor, handles ConstantClass entries 
- * @author      Bernd Eggink, (monoped@users.sourceforge.net)
+/**
+ * Visitor, handles ConstantClass entries
+ *
+ * @author Bernd Eggink, (monoped@users.sourceforge.net)
  */
 
 class Avisitor
-    extends org.apache.bcel.classfile.EmptyVisitor
-{
-    static Logger       logger = Logger.getLogger(Avisitor.class);
+        extends org.apache.bcel.classfile.EmptyVisitor {
+    static Logger logger = Logger.getLogger(Avisitor.class);
 
-    private JavaClass   klass;
-    private Ajar        ajar;
-    
-    private ConstantMethodref   refClassForName,
-                                refClassGetResource, refClassGetResourceAsStream,
-                                refLoaderGetResource, refLoaderGetResourceAsStream;
+    private JavaClass klass;
+    private Ajar ajar;
+
+    private ConstantMethodref refClassForName,
+            refClassGetResource, refClassGetResourceAsStream,
+            refLoaderGetResource, refLoaderGetResourceAsStream;
 
     //----------------------------------------------------------------------
 
-    /** @param klass JavaClass object containing the code */
-    
-    Avisitor(Ajar ajar, JavaClass klass)
-    {
+    /**
+     * @param klass JavaClass object containing the code
+     */
+
+    Avisitor(Ajar ajar, JavaClass klass) {
         this.ajar = ajar;
         this.klass = klass;
     }
 
     //----------------------------------------------------------------------
 
-    /** Get constant pool ref of Class.forName */
+    /**
+     * Get constant pool ref of Class.forName
+     */
 
-    public ConstantMethodref getRefClassForName()
-    {
+    public ConstantMethodref getRefClassForName() {
         return refClassForName;
     }
 
     //----------------------------------------------------------------------
 
-    /** Get constant pool ref of Class.getResource */
+    /**
+     * Get constant pool ref of Class.getResource
+     */
 
-    public ConstantMethodref getRefClassGetResource()
-    {
+    public ConstantMethodref getRefClassGetResource() {
         return refClassGetResource;
     }
 
     //----------------------------------------------------------------------
 
-    /** Get constant pool ref of Class.getResourceAsStream */
+    /**
+     * Get constant pool ref of Class.getResourceAsStream
+     */
 
-    public ConstantMethodref getRefClassGetResourceAsStream()
-    {
+    public ConstantMethodref getRefClassGetResourceAsStream() {
         return refClassGetResourceAsStream;
     }
 
     //----------------------------------------------------------------------
 
-    /** Get constant pool ref of ClassLoader.getResource */
+    /**
+     * Get constant pool ref of ClassLoader.getResource
+     */
 
-    public ConstantMethodref getRefLoaderGetResource()
-    {
+    public ConstantMethodref getRefLoaderGetResource() {
         return refLoaderGetResource;
     }
 
     //----------------------------------------------------------------------
 
-    /** Get constant pool ref of ClassLoader.getResourceAsStream */
+    /**
+     * Get constant pool ref of ClassLoader.getResourceAsStream
+     */
 
-    public ConstantMethodref getRefLoaderGetResourceAsStream()
-    {
+    public ConstantMethodref getRefLoaderGetResourceAsStream() {
         return refLoaderGetResourceAsStream;
     }
 
     //----------------------------------------------------------------------
 
-    boolean hasClassReferences()
-    {
-        return refClassForName != null 
-            || refClassGetResource != null
-            || refClassGetResourceAsStream != null 
-            || refLoaderGetResource != null
-            || refLoaderGetResourceAsStream != null; 
+    boolean hasClassReferences() {
+        return refClassForName != null
+                || refClassGetResource != null
+                || refClassGetResourceAsStream != null
+                || refLoaderGetResource != null
+                || refLoaderGetResourceAsStream != null;
     }
 
     //----------------------------------------------------------------------
 
-    /** Class name in constant pool: Try to find class file and add it */
+    /**
+     * Class name in constant pool: Try to find class file and add it
+     */
 
-    public void visitConstantClass(ConstantClass cc)
-    {
+    public void visitConstantClass(ConstantClass cc) {
         String cstr = klass.getConstantPool().getConstant(cc.getNameIndex()).toString();
 
-        int     ia = cstr.indexOf('"'),
+        int ia = cstr.indexOf('"'),
                 ie = cstr.lastIndexOf('"');
-        String  name = cstr.substring(ia + 1, ie);
-        
+        String name = cstr.substring(ia + 1, ie);
+
         // skip arrays
-           
+
         if (name.startsWith("["))
             return;
 
-        try
-        {
+        try {
             ajar.lookupClass(name);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             logger.fatal(ex.getMessage());
         }
     }
 
     //----------------------------------------------------------------------
 
-    /** Method reference in constant pool: Check if Class.forName(), getResource() etc.,
-     *  try to resolve if necessary.
+    /**
+     * Method reference in constant pool: Check if Class.forName(), getResource() etc.,
+     * try to resolve if necessary.
      */
 
-    public void visitConstantMethodref(ConstantMethodref ref)
-    {
-        ConstantPool    pool = klass.getConstantPool();
-        String          cstr = ref.getClass(pool);          // Class to which method belongs
-        int             iname = ref.getNameAndTypeIndex();  // Pool index of method name and type
-        String          name = ((ConstantNameAndType)pool.getConstant(iname)).getName(pool);    // method name
+    public void visitConstantMethodref(ConstantMethodref ref) {
+        ConstantPool pool = klass.getConstantPool();
+        String cstr = ref.getClass(pool);          // Class to which method belongs
+        int iname = ref.getNameAndTypeIndex();  // Pool index of method name and type
+        String name = ((ConstantNameAndType) pool.getConstant(iname)).getName(pool);    // method name
 
-        if (cstr.equals("java.lang.Class"))
-        {
+        if (cstr.equals("java.lang.Class")) {
             if (name.equals("forName"))
                 refClassForName = ref;                      // save index of Class.forName()
             else if (name.equals("getResource"))
                 refClassGetResource = ref;                  // Class.getResource
             else if (name.equals("getResourceAsStream"))
                 refClassGetResourceAsStream = ref;          // Class.getResourceAsStream
-        }
-        else if (cstr.equals("java.lang.ClassLoader"))
-        {
+        } else if (cstr.equals("java.lang.ClassLoader")) {
             if (name.equals("getResource"))
                 refLoaderGetResource = ref;                 // ClassLoader.getResource
-            else if (name.equals("getResourceAsStream"))    
+            else if (name.equals("getResourceAsStream"))
                 refLoaderGetResourceAsStream = ref;         // ClassLoader.getResourceAsStream
         }
     }

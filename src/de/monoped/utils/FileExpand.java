@@ -17,48 +17,48 @@ package de.monoped.utils;
  * monoped@users.sourceforge.net
  */
 
-import java.io.*;
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 
-/** Expand wildcards in file names
- *  @author      Bernd Eggink (monoped@users.sourceforge.net)
+import java.io.File;
+
+/**
+ * Expand wildcards in file names
+ *
+ * @author Bernd Eggink (monoped@users.sourceforge.net)
  */
 
-public class FileExpand
-{
-    static Logger       logger = Logger.getLogger(FileExpand.class);
+public class FileExpand {
+    static Logger logger = Logger.getLogger(FileExpand.class);
 
     //----------------------------------------------------------------------
 
-    private FileExpand()
-    { }
+    private FileExpand() {
+    }
 
     //----------------------------------------------------------------------
 
-    /** Get List of files matching a wildcard expression, relative to basedir
+    /**
+     * Get List of files matching a wildcard expression, relative to basedir
      *
-     *  @param basedir  Directory part, may be null.
-     *  @param expr     relative path, last component may contain wildcards
-     *  @return         Array of matching file names
+     * @param basedir Directory part, may be null.
+     * @param expr    relative path, last component may contain wildcards
+     * @return Array of matching file names
      */
 
-    static public String[] getList(File basedir, String expr)
-    {
-        try
-        {
+    static public String[] getList(File basedir, String expr) {
+        try {
             File exprFile = new File(expr),
-                 dir = new File(basedir, expr);
+                    dir = new File(basedir, expr);
 
             dir = dir.getAbsoluteFile().getParentFile();
 
-            if (! dir.exists())
+            if (!dir.exists())
                 return null;
 
-            String[]    names = dir.list(new OSFilter(exprFile.getName()));
-            String      base = exprFile.getParent();      // Base of expr part, may be null
-            
-            if (base != null)
-            {
+            String[] names = dir.list(new OSFilter(exprFile.getName()));
+            String base = exprFile.getParent();      // Base of expr part, may be null
+
+            if (base != null) {
                 base += File.separator;
 
                 for (int i = 0; i < names.length; ++i)
@@ -66,9 +66,7 @@ public class FileExpand
             }
 
             return names;
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             logger.fatal(ex);
             return null;
         }

@@ -17,50 +17,51 @@ package de.monoped.utils;
  * monoped@users.sourceforge.net
  */
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.Iterator;
 
-/** File filter for names with wildcards
- *  @author      Bernd Eggink (monoped@users.sourceforge.net)
+/**
+ * File filter for names with wildcards
+ *
+ * @author Bernd Eggink (monoped@users.sourceforge.net)
  */
 
 public class OSFilter
-    implements FilenameFilter
-{
-    private String      expr;
-    private ArrayList   excludes;
+        implements FilenameFilter {
+    private String expr;
+    private ArrayList excludes;
 
     //----------------------------------------------------------------------
 
-    /** Constructor
+    /**
+     * Constructor
      *
-     *  @param expr File path  containing wildcards
+     * @param expr File path  containing wildcards
      */
 
-    public OSFilter(String expr)
-    {
+    public OSFilter(String expr) {
         this.expr = expr;
     }
 
     //----------------------------------------------------------------------
 
-    public void setExcludes(ArrayList excludes)
-    {
+    public void setExcludes(ArrayList excludes) {
         this.excludes = excludes;
     }
-    
+
     //----------------------------------------------------------------------
 
-    public boolean accept(File dir, String path)
-    {
+    public boolean accept(File dir, String path) {
         boolean ok = FileUtils.patternMatches(expr, path);
 
-        if (! ok)
+        if (!ok)
             return false;
 
         if (excludes != null)
             for (Iterator it = excludes.iterator(); it.hasNext(); )
-                if (FileUtils.patternMatches((String)it.next(), path))
+                if (FileUtils.patternMatches((String) it.next(), path))
                     return false;
 
         return true;

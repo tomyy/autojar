@@ -17,19 +17,23 @@ package de.monoped.utils;
  * monoped@users.sourceforge.net
  */
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
-/** Handles program arguments like Unix getopt(). Example: <pre>
+/**
+ * Handles program arguments like Unix getopt(). Example: <pre>
  *  void main(String[] argv)
  *  {
  *      int     opt;
  *      boolean x = false;
  *      Getopt  getopt = new Getopt(argv, "a:hx");
  *      String  argA = "";
- *
+ * <p/>
  *      // get Options
- *      
+ * <p/>
  *      while ((opt = getopt.getOption()) != -1)
  *      {
  *          switch (opt)
@@ -43,112 +47,114 @@ import java.util.*;
  *              default:    System.out.println("wrong option: " + getOptopt());
  *          }
  *      }
- *      
+ * <p/>
  *      // handle non-option parameters
- *
+ * <p/>
  *      String[]   files = getopt.getParms();
- *      
+ * <p/>
  *      for (int i = 0; i < files.length; ++i)
  *          doSomethingWith(files[i]);
  *  }
- *
+ * <p/>
  *  Legal calls:
  *      java Mainclass -hx file1 file2
  *      java Mainclass -xa blurp -h -- file3
- *      
- *  Illegal calls:      
+ * <p/>
+ *  Illegal calls:
  *      java Mainclass -y f
  *      java Mainclass -a
- *
- *  The special argument -- denotes the end of the options. All Arguments 
+ * <p/>
+ *  The special argument -- denotes the end of the options. All Arguments
  *  after this will be considered as non-options, even if starting with -.
- *
+ * <p/>
  *  If any command line argument is of the form "@filename", this file
  *  is read and each line is considered a program parameter.
- *  
- *  </pre>    
+ * <p/>
+ *  </pre>
  *
- *  @author Bernd Eggink (monoped@users.sourceforge.net)
+ * @author Bernd Eggink (monoped@users.sourceforge.net)
  */
 
-public class Getopt
-{
-    private String[]    argv;
+public class Getopt {
+    private String[] argv;
     private ArrayList<String> arglist;
-    private String      optarg, opts;
-    private int         ichr = 0, optind = 0;
-    private char        optopt;
-    private boolean     opterr = true;
+    private String optarg, opts;
+    private int ichr = 0, optind = 0;
+    private char optopt;
+    private boolean opterr = true;
 
     //----------------------------------------------------------------------
 
-    /** Default constructor 
+    /**
+     * Default constructor
      *
-     * @param opts      The possible options.
+     * @param opts The possible options.
      */
 
-    private Getopt(String opts)
-    {
+    private Getopt(String opts) {
         this.opts = opts;
         arglist = new ArrayList<String>();
     }
-    
+
     //----------------------------------------------------------------------
 
-    /** Constructs a Getopt object by reading all arguments from a file.
-     * @param filename  Name of the file to read.
-     * @param opts      The possible options.
-     * @param opterr    If true, an error message will be printed if an illegal option character
-     *                  is found.
+    /**
+     * Constructs a Getopt object by reading all arguments from a file.
+     *
+     * @param filename Name of the file to read.
+     * @param opts     The possible options.
+     * @param opterr   If true, an error message will be printed if an illegal option character
+     *                 is found.
      */
 
     public Getopt(String filename, String opts, boolean opterr)
-        throws IOException
-    {
+            throws IOException {
         this(filename, opts);
         this.opterr = opterr;
     }
 
     //----------------------------------------------------------------------
 
-    /** Like Getopt(filename, opts, true) */
+    /**
+     * Like Getopt(filename, opts, true)
+     */
 
     public Getopt(String filename, String opts)
-        throws IOException
-    {
+            throws IOException {
         this(opts);
         addArgsFromFile(filename);
     }
 
     //----------------------------------------------------------------------
 
-    /** Constructs a Getopt object using the main() parameter list.
-     * @param argv      The arguments of main() 
-     * @param opts      The possible options. Each option is a single character.
-     *                  If followed by a colon, the option given in the command line
-     *                  must be followed by an argument. 
-     * @param opterr    If true, an error message will be printed if an illegal option character
-     *                  is encountered.
+    /**
+     * Constructs a Getopt object using the main() parameter list.
+     *
+     * @param argv   The arguments of main()
+     * @param opts   The possible options. Each option is a single character.
+     *               If followed by a colon, the option given in the command line
+     *               must be followed by an argument.
+     * @param opterr If true, an error message will be printed if an illegal option character
+     *               is encountered.
      */
 
     public Getopt(String[] argv, String opts, boolean opterr)
-        throws IOException
-    {
+            throws IOException {
         this(argv, opts);
         this.opterr = opterr;
     }
 
     //----------------------------------------------------------------------
 
-    /** Like Getopt(argv, opts, true). */
+    /**
+     * Like Getopt(argv, opts, true).
+     */
 
     public Getopt(String[] argv, String opts)
-        throws IOException
-    {
+            throws IOException {
         this(opts);
 
-        for (int i = 0; i < argv.length; ++i)
-        {
+        for (int i = 0; i < argv.length; ++i) {
             String arg = argv[i];
 
             if (arg.startsWith("@"))
@@ -156,17 +162,16 @@ public class Getopt
             else
                 arglist.add(arg);
         }
-        
+
         this.argv = arglist.toArray(new String[0]);
     }
 
     //----------------------------------------------------------------------
 
     private void addArgsFromFile(String name)
-        throws IOException
-    {
-        BufferedReader  reader = new BufferedReader(new FileReader(new File(name)));
-        String          zeile;
+            throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(new File(name)));
+        String zeile;
 
         while ((zeile = reader.readLine()) != null)
             arglist.add(zeile);
@@ -176,50 +181,47 @@ public class Getopt
 
     //----------------------------------------------------------------------
 
-    /** Returns the current argument or null. */
+    /**
+     * Returns the current argument or null.
+     */
 
-    public String  getOptarg()
-    {
+    public String getOptarg() {
         return optarg;
     }
 
     //----------------------------------------------------------------------
 
-    /** Returns the next option as int value,
-     *  -1 if no more options are available, '?' if the option is illegal.
+    /**
+     * Returns the next option as int value,
+     * -1 if no more options are available, '?' if the option is illegal.
      */
 
-    public int getOption()
-    {
-        char    c;
-        int     iopt;
-        
-        if (ichr == 0)
-        {
+    public int getOption() {
+        char c;
+        int iopt;
+
+        if (ichr == 0) {
             // beginning of word
 
             if (optind >= argv.length || argv[optind].charAt(0) != '-')
                 return -1;
-            
-            if (argv[optind].equals("-") || argv[optind].equals("--"))
-            {
+
+            if (argv[optind].equals("-") || argv[optind].equals("--")) {
                 ++optind;
                 return -1;
             }
         }
 
         // had -
-           
+
         c = argv[optind].charAt(++ichr);
 
-        if (c == ':' || (iopt = opts.indexOf(c)) < 0)
-        {
+        if (c == ':' || (iopt = opts.indexOf(c)) < 0) {
             if (opterr)
                 System.err.println("+++ Illegal option: " + c);
 
-            if (++ichr >= argv[optind].length())
-            {
-                ++optind; 
+            if (++ichr >= argv[optind].length()) {
+                ++optind;
                 ichr = 0;
             }
 
@@ -228,32 +230,26 @@ public class Getopt
             return '?';
         }
 
-        if (iopt + 1 < opts.length() && opts.charAt(iopt + 1) == ':')
-        {
+        if (iopt + 1 < opts.length() && opts.charAt(iopt + 1) == ':') {
             // must have optarg
 
             if (++ichr < argv[optind].length())
                 optarg = argv[optind++].substring(ichr);
-            else if (++optind >= argv.length)
-            {
+            else if (++optind >= argv.length) {
                 if (opterr)
                     System.err.println("+++ Option " + c + " requires an argument");
-        
+
                 ichr = 0;
                 optopt = c;
                 return '?';
-            }
-            else
+            } else
                 optarg = argv[optind++];
 
             ichr = 0;
-        }
-        else
-        {
+        } else {
             // no optarg
-               
-            if (ichr + 1 >= argv[optind].length())
-            {
+
+            if (ichr + 1 >= argv[optind].length()) {
                 ++optind;
                 ichr = 0;
             }
@@ -266,19 +262,21 @@ public class Getopt
 
     //----------------------------------------------------------------------
 
-    /** Returns the unrecognized option character. */
-    
-    public char getOptopt()
-    {
+    /**
+     * Returns the unrecognized option character.
+     */
+
+    public char getOptopt() {
         return optopt;
     }
 
     //----------------------------------------------------------------------
 
-    /** Returns parameters not handled by getOption() as array of Strings. */
-    
-    public String[] getParms()
-    {
+    /**
+     * Returns parameters not handled by getOption() as array of Strings.
+     */
+
+    public String[] getParms() {
         String[] parms = new String[argv.length - optind];
 
         for (int i = 0; optind + i < argv.length; ++i)

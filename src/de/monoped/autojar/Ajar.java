@@ -1,5 +1,6 @@
 package de.monoped.autojar;
 
+
 /* This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -36,87 +37,102 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-/** Class providing a public interface (used by Autojar and Eclipse plugin).
- *  @author Bernd Eggink (monoped@users.sourceforge.net)  
+/**
+ * Class providing a public interface (used by Autojar and Eclipse plugin).
+ *
+ * @author Bernd Eggink (monoped@users.sourceforge.net)
  */
 
-public class Ajar
-{
+public class Ajar {
 
-                                    /** Don't check for dynamic loading. */
-    static public final int         DYN_OFF = 0; 
+    /**
+     * Don't check for dynamic loading.
+     */
+    static public final int DYN_OFF = 0;
 
-                                    /** Warn if dynamic loading is detected. */
-    static public final int         DYN_WARN = 1;
+    /**
+     * Warn if dynamic loading is detected.
+     */
+    static public final int DYN_WARN = 1;
 
-                                    /** Try to resolve dynamic loading (implies DYN_WARN). */
-    static public final int         DYN_AUTO = 2;
+    /**
+     * Try to resolve dynamic loading (implies DYN_WARN).
+     */
+    static public final int DYN_AUTO = 2;
 
-                                    /** No output except errors. */
-    static public final int         QUIET_LEVEL = 0; 
+    /**
+     * No output except errors.
+     */
+    static public final int QUIET_LEVEL = 0;
 
-                                    /** Standard level, normal output. */
-    static public final int         STD_LEVEL = 1;
+    /**
+     * Standard level, normal output.
+     */
+    static public final int STD_LEVEL = 1;
 
-                                    /** Verbose output. */
-    static public final int         VERBOSE_LEVEL = 2;
+    /**
+     * Verbose output.
+     */
+    static public final int VERBOSE_LEVEL = 2;
 
-                                    /** Debug output. */
-    static public final int         DEBUG_LEVEL = 3;
+    /**
+     * Debug output.
+     */
+    static public final int DEBUG_LEVEL = 3;
 
-    static private final String     JAVA_HOME = System.getProperty("java.home");
+    static private final String JAVA_HOME = System.getProperty("java.home");
 
-    private int                     dynamic;
-    private boolean                 bothpaths,
-                                    debug, 
-                                    dynresource,
-                                    quiet,
-                                    searchExtensions;
-    private String                  mainClass;
-    private ZipOutputStream         jarout;
-    private FilePath                classpath, filepath;
+    private int dynamic;
+    private boolean bothpaths,
+            debug,
+            dynresource,
+            quiet,
+            searchExtensions;
+    private String mainClass;
+    private ZipOutputStream jarout;
+    private FilePath classpath, filepath;
     private HashSet<String> doneFiles;
     private HashSet<String> zipEntries;
     private HashSet<String> usedSources;
-    private Level                   logLevel;
-    private List<String>            classPathList;          // user supplied class path
+    private Level logLevel;
+    private List<String> classPathList;          // user supplied class path
     private List<String> extensionList;
     private List excludes;
     private List<String> fileExcludes;
-    private byte[]                  buffer;
+    private byte[] buffer;
     private TreeSet<String> forNameDyn;
     private TreeSet<String> getResourceDyn;
     private TreeSet<String> missing;
-    private Logger                  logger;
-    private String[]                bootPathComps;
-            
+    private Logger logger;
+    private String[] bootPathComps;
+
     //----------------------------------------------------------------------
 
-    /** Create an Ajar object.
+    /**
+     * Create an Ajar object.
      *
      * @param outfile          Output file (jar).
-     *  @param classPathList    List containing user supplied class path components.
+     * @param classPathList    List containing user supplied class path components.
      * @param excludes         List containing class prefixes to exclude.
      * @param filePathList     List containing file path components.
      * @param manifest         File containing additional manifest entries.
      * @param dynamic          How to handle Class.ForName() etc. One of {@link #DYN_OFF DYN_OFF},
-*                              {@link #DYN_WARN DYN_WARN},
-*                              {@link #DYN_AUTO DYN_AUTO}.
+     *                         {@link #DYN_WARN DYN_WARN},
+     *                         {@link #DYN_AUTO DYN_AUTO}.
      * @param dynresource      If true, try to find and add dynamically loaded resources.
      * @param searchExtensions If true, search extdirs for classes.
      * @param bothpaths        Use class path for file path.
      * @param level            Verbosity level. One of {@link #QUIET_LEVEL QUIET_LEVEL},
-*                          {@link #STD_LEVEL STD_LEVEL},
-*                          {@link #VERBOSE_LEVEL VERBOSE_LEVEL},
-*                          {@link #DEBUG_LEVEL DEBUG_LEVEL}.
+     *                         {@link #STD_LEVEL STD_LEVEL},
+     *                         {@link #VERBOSE_LEVEL VERBOSE_LEVEL},
+     *                         {@link #DEBUG_LEVEL DEBUG_LEVEL}.
      */
 
     public Ajar(File outfile, List<String> classPathList, List<String> excludes, List<String> filePathList,
-            File manifest, int dynamic, boolean dynresource, 
-            boolean searchExtensions, boolean bothpaths,
-            int level)
-        throws IOException
-    { 
+                File manifest, int dynamic, boolean dynresource,
+                boolean searchExtensions, boolean bothpaths,
+                int level)
+            throws IOException {
         this.excludes = excludes;
         this.dynamic = dynamic;
         this.dynresource = dynresource;
@@ -127,16 +143,19 @@ public class Ajar
 
         logger = Logger.getRootLogger();
 
-        switch (level)
-        {
-            case QUIET_LEVEL:   logLevel = Level.ERROR;
-                                break;
-            case VERBOSE_LEVEL: logLevel = Level.INFO;
-                                break;
-            case DEBUG_LEVEL:   logLevel = Level.DEBUG;
-                                debug = true;
-                                break;
-            default:            logLevel = Level.WARN;
+        switch (level) {
+            case QUIET_LEVEL:
+                logLevel = Level.ERROR;
+                break;
+            case VERBOSE_LEVEL:
+                logLevel = Level.INFO;
+                break;
+            case DEBUG_LEVEL:
+                logLevel = Level.DEBUG;
+                debug = true;
+                break;
+            default:
+                logLevel = Level.WARN;
         }
 
         logger.setLevel(logLevel);
@@ -154,33 +173,27 @@ public class Ajar
         filepath = new FilePath();
 
         // Build classpath, starting with boot path
-        
+
         String bootPath = System.getProperty("sun.boot.class.path");
 
         classpath.add(bootPath);
         bootPathComps = bootPath.split(File.pathSeparator);
 
         if (classPathList != null)
-            for (Iterator it = classPathList.iterator(); it.hasNext(); )
-            {
-                String  comp = (String)it.next();
-                File    file = new File(comp);
+            for (Iterator it = classPathList.iterator(); it.hasNext(); ) {
+                String comp = (String) it.next();
+                File file = new File(comp);
 
                 if (file.isDirectory())
                     classpath.add(comp);
-                else if (file.exists())
-                {
-                    try
-                    {
+                else if (file.exists()) {
+                    try {
                         new ZipFile(comp);
                         classpath.add(comp);
-                    }
-                    catch (ZipException ex)
-                    {
+                    } catch (ZipException ex) {
                         logger.warn("Class path component '" + comp + "' is not a valid zip file.");
                     }
-                }
-                else
+                } else
                     logger.warn("Class path component '" + comp + "' doesn't exist.");
             }
         else
@@ -190,17 +203,15 @@ public class Ajar
 
         String extdirs = System.getProperty("java.ext.dirs");
 
-        if (extdirs != null)
-        {
+        if (extdirs != null) {
             // create list of extension archives
 
             String[] extcomp = extdirs.split(File.pathSeparator);
 
-            for (int i = 0; i < extcomp.length; ++i)
-            {
+            for (int i = 0; i < extcomp.length; ++i) {
                 File dir = new File(extcomp[i]);
 
-                if (! dir.exists() || ! dir.isDirectory())
+                if (!dir.exists() || !dir.isDirectory())
                     continue;
 
                 String[] files = dir.list();
@@ -216,9 +227,8 @@ public class Ajar
         // file path
 
         if (filePathList != null)
-            for (Iterator it = filePathList.iterator(); it.hasNext(); )
-            {
-                String comp = (String)it.next();
+            for (Iterator it = filePathList.iterator(); it.hasNext(); ) {
+                String comp = (String) it.next();
 
                 if (new File(comp).exists())
                     filepath.add(comp);
@@ -227,33 +237,32 @@ public class Ajar
             }
         else if (bothpaths && classPathList != null)
             filepath.addList(classPathList);
-    
+
         logger.info("Class path:  " + classpath.toOSPath());
         logger.info("File path:   " + filepath.toOSPath());
         logger.info("Output file: " + outfile.getPath());
-                
+
         // create output file
 
-        FileOutputStream    out = new FileOutputStream(outfile);
+        FileOutputStream out = new FileOutputStream(outfile);
 
-        if (! outfile.getPath().endsWith(".jar"))
+        if (!outfile.getPath().endsWith(".jar"))
             jarout = new ZipOutputStream(out);
         else if (manifest == null)           // without manifest
             jarout = new JarOutputStream(out);
-        else
-        {                               // with manifest
+        else {                               // with manifest
             logger.info("Manifest:    " + manifest.getPath());
 
-            Manifest            mani = new Manifest();
-            FileInputStream     maniIn = new FileInputStream(manifest);
-            
+            Manifest mani = new Manifest();
+            FileInputStream maniIn = new FileInputStream(manifest);
+
             mani.getMainAttributes().putValue("Manifest-Version", "1.0");
             mani.read(maniIn);
             maniIn.close();
             jarout = new JarOutputStream(out, mani);
 
             // handle Main-Class if given
-               
+
             mainClass = mani.getMainAttributes().getValue("Main-Class");
 
             if (mainClass != null && mainClass.length() > 0)
@@ -262,70 +271,65 @@ public class Ajar
     }
 
     //----------------------------------------------------------------------
- 
-    /** Create an Ajar object with standard log level. */
+
+    /**
+     * Create an Ajar object with standard log level.
+     */
 
     public Ajar(File outfile, List<String> classPathList, List<String> excludes, List<String> filePathList,
-            File manifest, int dynamic, boolean dynresource, 
-            boolean searchExtensions, boolean bothpaths)
-        throws IOException
-    { 
+                File manifest, int dynamic, boolean dynresource,
+                boolean searchExtensions, boolean bothpaths)
+            throws IOException {
         this(outfile, classPathList, excludes, filePathList,
-            manifest, dynamic, dynresource, searchExtensions, bothpaths, STD_LEVEL);
+                manifest, dynamic, dynresource, searchExtensions, bothpaths, STD_LEVEL);
     }
 
     //----------------------------------------------------------------------
 
-    /** Add a class file to output (unconditionally). 
+    /**
+     * Add a class file to output (unconditionally).
      *
-     *  @param classFile    The class file.
+     * @param classFile The class file.
      */
 
     private void addClass(EFile classFile)
-        throws IOException
-    {
-        String  base = classFile.getBase(),
+            throws IOException {
+        String base = classFile.getBase(),
                 path = classFile.getPath();
         boolean explicit = false,
                 copy = true;
 
         // test if library is in user class path
 
-        for (Iterator<String> it = classPathList.iterator(); it.hasNext(); )
-        {
+        for (Iterator<String> it = classPathList.iterator(); it.hasNext(); ) {
             String comp = it.next();
 
-            if (base.equals(comp))
-            {
+            if (base.equals(comp)) {
                 explicit = true;
                 break;
             }
         }
 
-        if (! explicit)
-        {
+        if (!explicit) {
             boolean inExt = false;
 
             // check if base is an extension archive
 
-            for (Iterator<String> it = extensionList.iterator(); it.hasNext(); )
-            {
+            for (Iterator<String> it = extensionList.iterator(); it.hasNext(); ) {
                 String file = it.next();
 
-                if (base.equals(file))
-                {
+                if (base.equals(file)) {
                     inExt = true;       // in extension
                     break;
                 }
             }
 
-            if (inExt && ! searchExtensions) 
+            if (inExt && !searchExtensions)
                 copy = false;           // handle recursively, don't copy
-            else if (! inExt)
-            {
+            else if (!inExt) {
                 if (base.startsWith(JAVA_HOME))
                     return;
-                
+
                 for (int i = 0; i < bootPathComps.length; ++i)
                     if (bootPathComps[i].equals(base))
                         return;
@@ -333,9 +337,9 @@ public class Ajar
         }
 
         // base excluded?
-        
+
         for (Iterator it = excludes.iterator(); it.hasNext(); )
-            if (base.startsWith((String)it.next()))
+            if (base.startsWith((String) it.next()))
                 return;
 
         if (copy)
@@ -349,14 +353,13 @@ public class Ajar
     //----------------------------------------------------------------------
 
     private void addResource(EFile resoFile)
-        throws IOException
-    {
-        String  base = resoFile.getBase();
+            throws IOException {
+        String base = resoFile.getBase();
 
         // base excluded?
-        
+
         for (Iterator it = excludes.iterator(); it.hasNext(); )
-            if (base.startsWith((String)it.next()))
+            if (base.startsWith((String) it.next()))
                 return;
 
         copyToJar(resoFile);
@@ -364,71 +367,69 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    /** Add a pattern for input file exclusion.
+    /**
+     * Add a pattern for input file exclusion.
      *
-     *  @param pattern  Pattern containing * and ? wildcards.
+     * @param pattern Pattern containing * and ? wildcards.
      */
 
-    public void addFileExcludes(String pattern)
-    {
+    public void addFileExcludes(String pattern) {
         fileExcludes.add(pattern);
     }
 
     //----------------------------------------------------------------------
 
-    /** Add an entry to the list of missing files.
+    /**
+     * Add an entry to the list of missing files.
      *
-     *  @param name     Name of the file.
+     * @param name Name of the file.
      */
 
-    public void addMissing(String name)
-    {
+    public void addMissing(String name) {
         missing.add(name);
     }
 
     //----------------------------------------------------------------------
 
-    /** Clear exclusion pattern list. */
+    /**
+     * Clear exclusion pattern list.
+     */
 
-    public void clearFileExcludes()
-    {
+    public void clearFileExcludes() {
         fileExcludes.clear();
     }
 
     //----------------------------------------------------------------------
 
-    /** Close output file. */
+    /**
+     * Close output file.
+     */
 
-    public void close()
-    {
-        try
-        {
+    public void close() {
+        try {
             if (zipEntries.size() > 0)
                 jarout.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             logger.fatal(e.getMessage(), e);
         }
     }
 
     //----------------------------------------------------------------------
 
-    /** Copy file content to the output.
+    /**
+     * Copy file content to the output.
      *
-     *  @param  file    File to be copied.
+     * @param file File to be copied.
      */
 
     private void copyToJar(EFile file)
-        throws IOException
-    {
-        byte[]  bytes = file.getBytes();
-        String  base = file.getBase(),
+            throws IOException {
+        byte[] bytes = file.getBytes();
+        String base = file.getBase(),
                 path = file.getPath(),
                 zipPath = path.replace(File.separatorChar, '/');
 
-        if (putEntry(zipPath))
-        {
+        if (putEntry(zipPath)) {
             jarout.write(bytes);
             doneFiles.add(path);
             missing.remove(path);
@@ -439,27 +440,27 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    /** Found Class.forName, Class.getResource etc. in constant pool */
+    /**
+     * Found Class.forName, Class.getResource etc. in constant pool
+     */
 
     private void forNameResource(JavaClass klass, ConstantMethodref refForName,
-           ConstantMethodref refClassGetResource, ConstantMethodref refClassGetStream, 
-           ConstantMethodref refLoaderGetResource, ConstantMethodref refLoaderGetStream)
-        throws IOException
-    {
+                                 ConstantMethodref refClassGetResource, ConstantMethodref refClassGetStream,
+                                 ConstantMethodref refLoaderGetResource, ConstantMethodref refLoaderGetStream)
+            throws IOException {
         // Scan all methods 
 
-        ConstantPool    pool = klass.getConstantPool();
-        Method[]        methods = klass.getMethods();
-        
-        for (int i = 0; i < methods.length; ++i)
-        {
-            Method  method = methods[i];
-            Code    code = method.getCode();
+        ConstantPool pool = klass.getConstantPool();
+        Method[] methods = klass.getMethods();
 
-            if (code == null 
+        for (int i = 0; i < methods.length; ++i) {
+            Method method = methods[i];
+            Code code = method.getCode();
+
+            if (code == null
                     || method.getName().endsWith("$")           // javac
                     || method.getName().equals("class")         // jikes
-                )
+                    )
                 continue;
 
             // Get line number table
@@ -467,15 +468,12 @@ public class Ajar
             LineNumberTable lineNumbers = code.getLineNumberTable();
 
             // Wrap code into InstructionList
-            
+
             InstructionList instructions = null;
 
-            try
-            {
+            try {
                 instructions = new InstructionList(code.getCode());
-            }
-            catch (ClassGenException ex)
-            {
+            } catch (ClassGenException ex) {
                 logger.fatal(code.toString(), ex);
                 System.exit(1);
             }
@@ -484,44 +482,40 @@ public class Ajar
 
             // Iterate through instructions
 
-            for (Iterator it = instructions.iterator(); it.hasNext(); )
-            {
-                InstructionHandle   handle = (InstructionHandle)it.next();
-                Instruction         instruction = handle.getInstruction();
-                InstructionHandle   preHandle = handle.getPrev();
+            for (Iterator it = instructions.iterator(); it.hasNext(); ) {
+                InstructionHandle handle = (InstructionHandle) it.next();
+                Instruction instruction = handle.getInstruction();
+                InstructionHandle preHandle = handle.getPrev();
 
                 if (preHandle == null)
                     continue;
 
-                if (! (instruction instanceof InvokeInstruction))
+                if (!(instruction instanceof InvokeInstruction))
                     continue;
-                
-                // get Instruction from Pool
-                
-                ConstantCP      constant  = (ConstantCP)pool.getConstant(((InvokeInstruction)instruction).getIndex());        
-                Instruction     pre = preHandle.getInstruction();
 
-                if (constant != null && refForName != null && constant.equals(refForName))
-                {
+                // get Instruction from Pool
+
+                ConstantCP constant = (ConstantCP) pool.getConstant(((InvokeInstruction) instruction).getIndex());
+                Instruction pre = preHandle.getInstruction();
+
+                if (constant != null && refForName != null && constant.equals(refForName)) {
                     // found Class.forName...
 
                     if (pre.getOpcode() == Constants.LDC)       // pre-instruction loads constant
                     {
                         // ... with constant (String) operand
 
-                        LDC ldc = (LDC)pre;
+                        LDC ldc = (LDC) pre;
 
-                        String  operand = (String)ldc.getValue(new ConstantPoolGen(pool)),  
+                        String operand = (String) ldc.getValue(new ConstantPoolGen(pool)),
                                 bcelop = operand.replace('.', '/') + ".class";
-                        boolean found = getDynamic() == Ajar.DYN_AUTO && 
-                                    lookupClassInternal(bcelop);        // Lookup and copy if found
-                        String message = logstr(klass, method, lineNumbers, handle, 
-                                    "Class.forName(\"" + operand + "\")", found);
+                        boolean found = getDynamic() == Ajar.DYN_AUTO &&
+                                lookupClassInternal(bcelop);        // Lookup and copy if found
+                        String message = logstr(klass, method, lineNumbers, handle,
+                                "Class.forName(\"" + operand + "\")", found);
 
                         logger.info("* " + message);
-                    }
-                    else
-                    {
+                    } else {
                         // ... with computed operand
 
                         String message = logstr(klass, method, lineNumbers, handle, null, false);
@@ -529,7 +523,7 @@ public class Ajar
                         forNameDyn.add(message);
                     }
                 }
-                
+
                 boolean useClass = false,
                         asStream = false;
 
@@ -551,21 +545,19 @@ public class Ajar
                 {
                     // yes
 
-                    LDC     ldc = (LDC)pre;
-                    String  operand = (String)ldc.getValue(new ConstantPoolGen((pool)));   
+                    LDC ldc = (LDC) pre;
+                    String operand = (String) ldc.getValue(new ConstantPoolGen((pool)));
 
                     call = methodName + "(\"" + operand + "\")";
 
-                    if (dynresource)
-                    {
+                    if (dynresource) {
                         // If the file can be found, add it
 
-                        EFile   theFile = null;
+                        EFile theFile = null;
 
-                        try
-                        {
-                            String path; 
-                            
+                        try {
+                            String path;
+
                             if (useClass)
                                 if (operand.startsWith("/"))
                                     path = operand.substring(1);
@@ -575,28 +567,21 @@ public class Ajar
                                 path = operand;
 
                             theFile = classpath.lookupFile(path);
-                        }
-                        catch (IOException ex)
-                        {
+                        } catch (IOException ex) {
                             missing.add(operand);
                         }
 
-                        if (theFile != null)
-                        {
+                        if (theFile != null) {
                             // found it
 
                             String message = logstr(klass, method, lineNumbers, handle, call, true);
                             logger.info("* " + message);
                             addResource(theFile);
-                        }
-                        else
+                        } else
                             logger.info("* " + logstr(klass, method, lineNumbers, handle, call, false));
-                    }
-                    else
+                    } else
                         logger.info("* " + logstr(klass, method, lineNumbers, handle, call, false));
-                }
-                else
-                {
+                } else {
                     // sorry, pre-instruction doesn't load a constant
 
                     String message = logstr(klass, method, lineNumbers, handle, methodName + "()", false);
@@ -608,42 +593,43 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    public int getDynamic()
-    {
+    public int getDynamic() {
         return dynamic;
     }
 
     //----------------------------------------------------------------------
 
-    /** Get the log level. */
+    /**
+     * Get the log level.
+     */
 
-    public Level getLogLevel()
-    {
+    public Level getLogLevel() {
         return logLevel;
     }
 
     //----------------------------------------------------------------------
 
-    /** Get mainClass property. */
+    /**
+     * Get mainClass property.
+     */
 
-    public String getMainClass()
-    {
+    public String getMainClass() {
         return mainClass;
     }
 
     //----------------------------------------------------------------------
 
-    /** Handle a directory by adding it to the output.
+    /**
+     * Handle a directory by adding it to the output.
      *
-     *  @param base     Base directory or null.
-     *  @param name     Directory name.
+     * @param base Base directory or null.
+     * @param name Directory name.
      */
-    
+
     public void handleDirectory(File base, String name)
-        throws IOException
-    {
-        File    dir = new File(base, name);
-        String  zipPath = name.replace(File.separatorChar, '/');
+            throws IOException {
+        File dir = new File(base, name);
+        String zipPath = name.replace(File.separatorChar, '/');
 
         logger.info("added: " + zipPath);
 
@@ -653,141 +639,130 @@ public class Ajar
 
         // process all files recursively
 
-        String[]  files = dir.list();
-        
+        String[] files = dir.list();
+
         for (int i = 0; i < files.length; ++i)
             handleFileNoLookup(base, new File(name, files[i]).getPath(), true);
     }
 
     //----------------------------------------------------------------------
 
-    /** Handle a directory by adding it to the output.
+    /**
+     * Handle a directory by adding it to the output.
      *
-     *  @param path     Directory path.
+     * @param path Directory path.
      */
-    
+
     public void handleDirectory(String path)
-        throws IOException
-    {
+            throws IOException {
         handleDirectory(null, path);
     }
 
     //----------------------------------------------------------------------
 
-    /** Handle file without lookup.
+    /**
+     * Handle file without lookup.
      *
-     *  @param base     Base directory or null.
-     *  @param name     File name.
+     * @param base Base directory or null.
+     * @param name File name.
      */
 
     public void handleFile(File base, String name, boolean includeSource)
-        throws IOException
-    {
-        File    file = new File(base, name);
-        String  path = file.getPath();
+            throws IOException {
+        File file = new File(base, name);
+        String path = file.getPath();
 
         // handle file according to suffix
 
-        if (file.isDirectory())
-        {
+        if (file.isDirectory()) {
             // directory
-               
+
             handleDirectory(base, name);
-        }
-        else if (path.endsWith(".jar") || path.endsWith(".war"))
-        {
+        } else if (path.endsWith(".jar") || path.endsWith(".war")) {
             // add jar file contents
 
             handleJarFile(file, includeSource);
-        }
-        else if (path.endsWith(".zip"))
-        {
+        } else if (path.endsWith(".zip")) {
             // add zip file contents
 
             handleZipFile(file);
-        }
-        else
-        {
+        } else {
             // normal file (no lookup)
-               
-            handleFileNoLookup(base, name, true);          
+
+            handleFileNoLookup(base, name, true);
         }
     }
 
     //----------------------------------------------------------------------
 
-    /** Handle a list of files.
+    /**
+     * Handle a list of files.
      *
-     *  @param base     Base directory or null.
-     *  @param list     List containing the filenames (names may contain wildcards).
+     * @param base Base directory or null.
+     * @param list List containing the filenames (names may contain wildcards).
      */
 
     public void handleFileList(File base, String[] list)
-        throws IOException
-    {
+            throws IOException {
         if (list == null)
             return;
 
         // iterate through list of files
-           
-        for (int iex = 0; iex < list.length; ++iex)
-        {
-            String  name = list[iex];
 
-            if (! FileUtils.patternMatches(fileExcludes, name))
+        for (int iex = 0; iex < list.length; ++iex) {
+            String name = list[iex];
+
+            if (!FileUtils.patternMatches(fileExcludes, name))
                 handleFile(base, name, true);
-        } 
+        }
     }
 
     //----------------------------------------------------------------------
 
-    /** Handle a list of files.
+    /**
+     * Handle a list of files.
      *
-     *  @param list     List containing the filenames.
+     * @param list List containing the filenames.
      */
 
     public void handleFileList(String[] list)
-        throws IOException
-    {
+            throws IOException {
         handleFileList(null, list);
     }
 
     //----------------------------------------------------------------------
 
-    /** Handle normal file without lookup.
+    /**
+     * Handle normal file without lookup.
      *
-     *  @param base     Base directory or null.
-     *  @param name     File name (may contain wildcards).
+     * @param base Base directory or null.
+     * @param name File name (may contain wildcards).
      */
 
     private void handleFileNoLookup(File base, String name, boolean includeSource)
-        throws IOException
-    {
-        File    file = new File(base, name);
-        String  path = file.getPath();
-        String  zipPath = name.replace(File.separatorChar, '/');
+            throws IOException {
+        File file = new File(base, name);
+        String path = file.getPath();
+        String zipPath = name.replace(File.separatorChar, '/');
 
         if (FileUtils.patternMatches(fileExcludes, file.getName()))
             return;
 
-        if (file.isDirectory())
-        {
+        if (file.isDirectory()) {
             // process content of directory
-               
+
             handleDirectory(base, name);
             return;
         }
-        
-        if (includeSource)
-        {
-            BufferedInputStream     in = new BufferedInputStream(new FileInputStream(file));
-            int                     n;
+
+        if (includeSource) {
+            BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
+            int n;
 
             // Copy file to output
 
-            if (putEntry(zipPath))
-            {
-                while((n = in.read(buffer)) >= 0)
+            if (putEntry(zipPath)) {
+                while ((n = in.read(buffer)) >= 0)
                     jarout.write(buffer, 0, n);
 
                 doneFiles.add(path);
@@ -799,22 +774,21 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    /** Handle a jar file. Extract everything except manifest. 
+    /**
+     * Handle a jar file. Extract everything except manifest.
      *
-     *  @param file             Jar file.
-     *  @param includeSource    Add source to output
+     * @param file          Jar file.
+     * @param includeSource Add source to output
      */
 
     private void handleJarFile(File file, boolean includeSource)
-        throws IOException
-    {
-        String  path = file.getPath();
+            throws IOException {
+        String path = file.getPath();
         JarFile jarfile = new JarFile(file);
 
-        for (Enumeration<JarEntry> entries = jarfile.entries(); entries.hasMoreElements(); )
-        {
-            JarEntry    entry = entries.nextElement();
-            String      entryName = entry.getName();
+        for (Enumeration<JarEntry> entries = jarfile.entries(); entries.hasMoreElements(); ) {
+            JarEntry entry = entries.nextElement();
+            String entryName = entry.getName();
 
             if (entryName.startsWith("META-INF"))
                 continue;
@@ -822,24 +796,23 @@ public class Ajar
             if (FileUtils.patternMatches(fileExcludes, entryName))
                 continue;       // matches exclude pattern
 
-            if (includeSource)
-            {
-                if (! putEntry(entry))
+            if (includeSource) {
+                if (!putEntry(entry))
                     continue;       // already there
-            
+
                 InputStream in = jarfile.getInputStream(entry);
-                int         n;
-            
+                int n;
+
                 while ((n = in.read(buffer)) >= 0)
                     jarout.write(buffer, 0, n);
 
                 in.close();
                 doneFiles.add(entryName);
             }
-            
+
             if (entryName.endsWith(".class"))
-                handleReferences(jarfile.getInputStream(entry), 
-                    entryName.substring(entryName.length() - 6).replace(File.separatorChar, '.'));
+                handleReferences(jarfile.getInputStream(entry),
+                        entryName.substring(entryName.length() - 6).replace(File.separatorChar, '.'));
 
             missing.remove(entryName);
 
@@ -852,17 +825,17 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    /** Scan class file for class references 
-     *  
-     *  @param in       Stream reading from class file
-     *  @param bcelName BCEL class name in the form pack1/pack2/name
+    /**
+     * Scan class file for class references
+     *
+     * @param in       Stream reading from class file
+     * @param bcelName BCEL class name in the form pack1/pack2/name
      */
 
     private void handleReferences(InputStream in, String bcelName)
-        throws IOException
-    {
-        JavaClass       klass = new ClassParser(in, bcelName).parse();
-        Avisitor        visitor = new Avisitor(this, klass);
+            throws IOException {
+        JavaClass klass = new ClassParser(in, bcelName).parse();
+        Avisitor visitor = new Avisitor(this, klass);
 
         new DescendingVisitor(klass, visitor).visit();
         in.close();
@@ -874,7 +847,7 @@ public class Ajar
 
         if (visitor.hasClassReferences())
             forNameResource(klass, visitor.getRefClassForName(),
-                    visitor.getRefClassGetResource(), 
+                    visitor.getRefClassGetResource(),
                     visitor.getRefClassGetResourceAsStream(),
                     visitor.getRefLoaderGetResource(),
                     visitor.getRefLoaderGetResourceAsStream());
@@ -882,30 +855,28 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    /** Handle a zip file. Extract everything. 
+    /**
+     * Handle a zip file. Extract everything.
      *
-     * @param file  Zip file.
+     * @param file Zip file.
      */
 
     private void handleZipFile(File file)
-        throws IOException
-    {
-        String  path = file.getPath();
+            throws IOException {
+        String path = file.getPath();
         ZipFile zipfile = new ZipFile(file);
 
-        for (Enumeration<? extends ZipEntry> entries = zipfile.entries(); entries.hasMoreElements(); )
-        {
-            ZipEntry    entry = entries.nextElement();
-            String      entryName = entry.getName();
+        for (Enumeration<? extends ZipEntry> entries = zipfile.entries(); entries.hasMoreElements(); ) {
+            ZipEntry entry = entries.nextElement();
+            String entryName = entry.getName();
 
             if (FileUtils.patternMatches(fileExcludes, entryName))
                 continue;
 
             InputStream in = zipfile.getInputStream(entry);
-            int         n;
-            
-            if (putEntry(entry))
-            {
+            int n;
+
+            if (putEntry(entry)) {
                 while ((n = in.read(buffer)) >= 0)
                     jarout.write(buffer, 0, n);
 
@@ -919,37 +890,40 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    /** Get bothpaths setting. */
+    /**
+     * Get bothpaths setting.
+     */
 
-    public boolean isBothpaths()
-    {
+    public boolean isBothpaths() {
         return bothpaths;
     }
 
     //----------------------------------------------------------------------
 
-    /** Get debug setting. */
+    /**
+     * Get debug setting.
+     */
 
-    public boolean isDebug()
-    {
+    public boolean isDebug() {
         return debug;
     }
 
     //----------------------------------------------------------------------
 
-    /** Create message (Class.forName, getResource() etc.) */
+    /**
+     * Create message (Class.forName, getResource() etc.)
+     */
 
-    private String logstr(JavaClass klass, Method method, 
-            LineNumberTable lineNumbers, InstructionHandle handle, 
-            String call, boolean found)
-    {
+    private String logstr(JavaClass klass, Method method,
+                          LineNumberTable lineNumbers, InstructionHandle handle,
+                          String call, boolean found) {
         StringBuffer message = new StringBuffer(klass.getClassName());
-        
+
         if (lineNumbers != null)
             message.append(":").append(lineNumbers.getSourceLine(handle.getPosition()));
 
         message.append(" (method ").append(method.getName()).append(")");
-        
+
         if (call != null)
             message.append(": ").append(call);
 
@@ -961,85 +935,81 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    /** Get quiet property. */
+    /**
+     * Get quiet property.
+     */
 
-    public boolean isQuiet()
-    {
+    public boolean isQuiet() {
         return quiet;
     }
 
     //----------------------------------------------------------------------
 
-    /** Look up class in classpath. 
+    /**
+     * Look up class in classpath.
      *
-     *  @param className    class name in the form pack1.pack2.name.
-     *                      Name may contain wildcards.
-     *  @return             true if class found and not in excluded base,
-     *                      false otherwise
+     * @param className class name in the form pack1.pack2.name.
+     *                  Name may contain wildcards.
+     * @return true if class found and not in excluded base,
+     *         false otherwise
      */
-    
+
     public boolean lookupClass(String className)
-        throws IOException
-    {
+            throws IOException {
         if (className.endsWith(".class"))
             className = className.substring(0, className.length() - 6);
 
         className = className.replace('.', '/') + ".class";
 
-        int     islash = className.lastIndexOf("/");
-        String  last = className.substring(islash + 1);
+        int islash = className.lastIndexOf("/");
+        String last = className.substring(islash + 1);
 
-        if (last.indexOf('?') >= 0 || last.indexOf('*') >= 0) 
-        {
+        if (last.indexOf('?') >= 0 || last.indexOf('*') >= 0) {
             /* Class name contains wildcards. '**.class' is handled specially:
              * We need the suffix .class to know that the classpath is to be
              * used, but have to remove it for the recursive include to work.
              */
-    
+
             if (className.endsWith("**.class"))
                 className = className.substring(0, className.length() - 6);
 
             List flist = classpath.lookupPattern(className);
 
-            for (Iterator it = flist.iterator(); it.hasNext(); )
-            {
-                EFile   efile = (EFile)it.next();
-                String  path = efile.getPath();
+            for (Iterator it = flist.iterator(); it.hasNext(); ) {
+                EFile efile = (EFile) it.next();
+                String path = efile.getPath();
 
-                if (path.endsWith(".class") && ! doneFiles.contains(path))
+                if (path.endsWith(".class") && !doneFiles.contains(path))
                     addClass(efile);
             }
 
             return true;
         }
 
-        return lookupClassInternal(className);  
+        return lookupClassInternal(className);
     }
 
     //----------------------------------------------------------------------
 
-    /** Look up class in classpath. 
+    /**
+     * Look up class in classpath.
      *
-     *  @param path     class or resource name in the form pack1/pack2/name.class
-     *  @return         true if class found and not in excluded base,
-     *                  false otherwise
+     * @param path class or resource name in the form pack1/pack2/name.class
+     * @return true if class found and not in excluded base,
+     *         false otherwise
      */
-    
-    boolean lookupClassInternal(String path)
-    {
+
+    boolean lookupClassInternal(String path) {
         if (doneFiles.contains(path))         // already done?
             return true;
-        
+
         EFile classFile;
-        
-        try
-        {
+
+        try {
             classFile = classpath.lookupFile(path);
             doneFiles.add(path);
             addClass(classFile);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             missing.add(path);
             return false;
         }
@@ -1048,35 +1018,31 @@ public class Ajar
     }
 
     //----------------------------------------------------------------------
-    
-    /** Look file in filepath.
+
+    /**
+     * Look file in filepath.
      *
-     *  @param name path name of the file.
+     * @param name path name of the file.
      */
 
     public void lookupFile(String name)
-        throws IOException
-    {
+            throws IOException {
         if (doneFiles.contains(name))
             return;
 
-        int     islash = name.lastIndexOf(File.separator);
-        String  last = name.substring(islash + 1);
+        int islash = name.lastIndexOf(File.separator);
+        String last = name.substring(islash + 1);
 
-        if (last.indexOf('?') >= 0 || last.indexOf('*') >= 0)
-        {
+        if (last.indexOf('?') >= 0 || last.indexOf('*') >= 0) {
             lookupFilePattern(name);
             return;
         }
 
         EFile theFile;
 
-        try
-        {
+        try {
             theFile = filepath.lookupFile(name);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             missing.add(name);
             return;
         }
@@ -1086,38 +1052,37 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    /** Lookup files from a pattern.
+    /**
+     * Lookup files from a pattern.
      *
-     *  @param path  Path with wildcards in name part.
+     * @param path Path with wildcards in name part.
      */
 
     private void lookupFilePattern(String path)
-        throws IOException
-    {
+            throws IOException {
         List flist = filepath.lookupPattern(path);
 
-        for (Iterator it = flist.iterator(); it.hasNext(); )
-        {
-            EFile efile = (EFile)it.next();
+        for (Iterator it = flist.iterator(); it.hasNext(); ) {
+            EFile efile = (EFile) it.next();
 
-            if (! doneFiles.contains(efile.getPath()))
+            if (!doneFiles.contains(efile.getPath()))
                 copyToJar(efile);
         }
     }
 
     //----------------------------------------------------------------------
 
-    /** Put jar entry in output file, if not yet contained. 
+    /**
+     * Put jar entry in output file, if not yet contained.
      *
-     *  @param entry    The jar entry.
+     * @param entry The jar entry.
      */
 
     private boolean putEntry(ZipEntry entry)
-        throws IOException
-    {
+            throws IOException {
         if (zipEntries.contains(entry.getName()))
             return false;
-        
+
         // Workaround for bug 4682202
 
         ZipEntry tmpEntry = new ZipEntry(entry);
@@ -1132,39 +1097,38 @@ public class Ajar
         zipEntries.add(entry.getName());
         return true;
     }
-    
+
     //----------------------------------------------------------------------
 
-    /** Create new jar entry and put it into output file,
-     *  if not yet contained.
+    /**
+     * Create new jar entry and put it into output file,
+     * if not yet contained.
      */
 
     private boolean putEntry(String name)
-        throws IOException
-    {
+            throws IOException {
         return putEntry(new JarEntry(name));
     }
 
     //----------------------------------------------------------------------
 
-    /** Report genuine dynamic loading. */
+    /**
+     * Report genuine dynamic loading.
+     */
 
-    public void reportDynamicLoading()
-    {
-        if (forNameDyn.size() > 0)
-        {
+    public void reportDynamicLoading() {
+        if (forNameDyn.size() > 0) {
             String message = "Dynamic loading, unknown classname:";
-            
+
             for (Iterator<String> it = forNameDyn.iterator(); it.hasNext(); )
                 message += "\n    " + it.next();
 
             logger.warn(message);
         }
 
-        if (getResourceDyn.size() > 0)
-        {
+        if (getResourceDyn.size() > 0) {
             String message = "Resource access, unknown resource name:";
-        
+
             for (Iterator<String> it = getResourceDyn.iterator(); it.hasNext(); )
                 message += "\n    " + it.next();
 
@@ -1174,10 +1138,11 @@ public class Ajar
 
     //----------------------------------------------------------------------
 
-    /** Report referenced files that couldn't be found. */
-    
-    public void reportMissingFiles()
-    {
+    /**
+     * Report referenced files that couldn't be found.
+     */
+
+    public void reportMissingFiles() {
         if (missing.size() == 0 || quiet)
             return;
 
@@ -1188,32 +1153,31 @@ public class Ajar
 
         logger.warn(message);
     }
-    
+
     //----------------------------------------------------------------------
 
-    /** Report unused jar files in classpath. */
+    /**
+     * Report unused jar files in classpath.
+     */
 
-    public void reportUnusedPathComponents()
-    {
+    public void reportUnusedPathComponents() {
         HashSet<EFile> pathSet = new HashSet<EFile>(classpath.getList());
 
         pathSet.addAll(filepath.getList());
 
-        int             n = pathSet.size(),
-                        nUnused = 0;
-        String[]        unused = new String[n];
+        int n = pathSet.size(),
+                nUnused = 0;
+        String[] unused = new String[n];
 
-        for (Iterator it = pathSet.iterator(); it.hasNext(); )
-        {
-            EFile   file = (EFile)it.next();
-            String  part = file.getBase();
+        for (Iterator it = pathSet.iterator(); it.hasNext(); ) {
+            EFile file = (EFile) it.next();
+            String part = file.getBase();
 
-            if (! part.startsWith(JAVA_HOME) && ! usedSources.contains(part))
+            if (!part.startsWith(JAVA_HOME) && !usedSources.contains(part))
                 unused[nUnused++] = part;
         }
 
-        if (nUnused > 0)
-        {
+        if (nUnused > 0) {
             String message = "Unused path components:";
 
             Arrays.sort(unused, 0, nUnused);
@@ -1224,6 +1188,6 @@ public class Ajar
             logger.info(message);
         }
     }
-    
+
 }
 

@@ -30,51 +30,49 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.zip.ZipFile;
 
-/** Class representing a lookup path.
- *  @author Bernd Eggink (monoped@users.sourceforge.net)
+/**
+ * Class representing a lookup path.
+ *
+ * @author Bernd Eggink (monoped@users.sourceforge.net)
  */
-  
-class FilePath
-{
+
+class FilePath {
     private List<EFile> componentList;
 
     //----------------------------------------------------------------------
 
-    /** Constructor. */
+    /**
+     * Constructor.
+     */
 
-    FilePath()
-    {
+    FilePath() {
         componentList = new ArrayList<EFile>();
     }
 
     //----------------------------------------------------------------------
 
-    /** Add a path component. 
+    /**
+     * Add a path component.
      *
-     *  @param path     Directory or archive.
+     * @param path Directory or archive.
      */
 
     void add(String path)
-        throws IOException
-    {
+            throws IOException {
         StringTokenizer tok = new StringTokenizer(path, File.pathSeparator);
-        EFile           comp;
-        
-        while (tok.hasMoreTokens())
-        {
+        EFile comp;
+
+        while (tok.hasMoreTokens()) {
             String el = tok.nextToken();
 
-            if (el.indexOf('*') >= 0 || el.indexOf('?') >= 0)
-            {
+            if (el.indexOf('*') >= 0 || el.indexOf('?') >= 0) {
                 // Wildcard, perform expansion
-                   
+
                 String[] wlist = FileExpand.getList(null, el);
-                
+
                 for (int i = 0; i < wlist.length; ++i)
                     componentList.add(createEntry(wlist[i]));
-            }
-            else 
-            {
+            } else {
                 comp = createEntry(el);
 
                 if (comp != null)
@@ -85,17 +83,16 @@ class FilePath
 
     //----------------------------------------------------------------------
 
-    /** Add a list of components.
+    /**
+     * Add a list of components.
      *
-     *  @param clist    List of components (directories or archives).
+     * @param clist List of components (directories or archives).
      */
 
     void addList(List clist)
-        throws IOException
-    {
-        for (Iterator it = clist.iterator(); it.hasNext(); )
-        {
-            EFile efile = createEntry((String)it.next());
+            throws IOException {
+        for (Iterator it = clist.iterator(); it.hasNext(); ) {
+            EFile efile = createEntry((String) it.next());
 
             if (efile != null)
                 componentList.add(efile);
@@ -104,53 +101,51 @@ class FilePath
 
     //----------------------------------------------------------------------
 
-    /** Create entry from path. */
+    /**
+     * Create entry from path.
+     */
 
     private EFile createEntry(String path)
-        throws IOException
-    {
+            throws IOException {
         File file = new File(path);
 
         // file may be directory, .jar or .zip
 
-        if (file.exists())
-        {
+        if (file.exists()) {
             if (file.isDirectory())
                 return new LocalFile(path, "");
-            
+
             return new ZipEntryFile(new ZipFile(file));
-        }
-        else
+        } else
             return null;
     }
 
     //----------------------------------------------------------------------
 
-    /** Get the component list. */
+    /**
+     * Get the component list.
+     */
 
-    List<EFile> getList()
-    {
+    List<EFile> getList() {
         return componentList;
     }
 
     //----------------------------------------------------------------------
 
-    /** Scan file path for filename.
+    /**
+     * Scan file path for filename.
      *
-     *  @param      name    File name (may be a relative path).
-     *  @return     File, wrapped in an EFile object.
-     *
-     *  @throws     IOException if not found.
+     * @param name File name (may be a relative path).
+     * @return File, wrapped in an EFile object.
+     * @throws IOException if not found.
      */
 
     EFile lookupFile(String name)
-        throws IOException
-    {
-        for (Iterator<EFile> it = componentList.iterator(); it.hasNext(); )
-        {
+            throws IOException {
+        for (Iterator<EFile> it = componentList.iterator(); it.hasNext(); ) {
             EFile comp = it.next();
 
-            if (comp == null) 
+            if (comp == null)
                 continue;
 
             EFile efile = comp.setPath(name);
@@ -164,35 +159,34 @@ class FilePath
 
     //----------------------------------------------------------------------
 
-    /** Scan file path for a pattern.
+    /**
+     * Scan file path for a pattern.
      *
-     *  @param  path    Pattern (relative path with wildcards in the name part only).
-     *  @return         List of Efiles found.
+     * @param path Pattern (relative path with wildcards in the name part only).
+     * @return List of Efiles found.
      */
 
     List lookupPattern(String path) {
-        File        file = new File(path);
-        String      base = file.getParent();
-        
-        if (base != null) 
+        File file = new File(path);
+        String base = file.getParent();
+
+        if (base != null)
             base = base.replace(File.separatorChar, '/');
 
-        String      pattern = file.getName();
-        ArrayList<EFile>   flist = new ArrayList<EFile>();
+        String pattern = file.getName();
+        ArrayList<EFile> flist = new ArrayList<EFile>();
 
-        for (Iterator<EFile> it = componentList.iterator(); it.hasNext(); )
-        {
-            EFile   comp = it.next();
-            
-            if (comp == null) 
+        for (Iterator<EFile> it = componentList.iterator(); it.hasNext(); ) {
+            EFile comp = it.next();
+
+            if (comp == null)
                 continue;
 
             if (base != null)
                 comp = comp.setPath(base);
 
-            for (Iterator pit = comp.iterator(pattern); pit.hasNext(); )
-            {
-                EFile f = (EFile)pit.next();
+            for (Iterator pit = comp.iterator(pattern); pit.hasNext(); ) {
+                EFile f = (EFile) pit.next();
 
                 flist.add(f);
             }
@@ -203,18 +197,18 @@ class FilePath
 
     //----------------------------------------------------------------------
 
-    /** Path as an operation system path. */
+    /**
+     * Path as an operation system path.
+     */
 
-    String toOSPath()
-    {
+    String toOSPath() {
         String p = "";
 
-        for (Iterator it = componentList.iterator(); it.hasNext(); )
-        {
+        for (Iterator it = componentList.iterator(); it.hasNext(); ) {
             if (p.length() > 0)
                 p += File.pathSeparator;
 
-            p += ((EFile)it.next()).getBase();
+            p += ((EFile) it.next()).getBase();
         }
 
         return p;
@@ -222,8 +216,7 @@ class FilePath
 
     //----------------------------------------------------------------------
 
-    public String toString()
-    {
+    public String toString() {
         return toOSPath();
     }
 

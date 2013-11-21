@@ -26,65 +26,64 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Autojar main class 
- *  @author Bernd Eggink (monoped@users.sourceforge.net)  
+/**
+ * Autojar main class
+ *
+ * @author Bernd Eggink (monoped@users.sourceforge.net)
  */
 
-public class Autojar
-{
-    static Logger               logger = Logger.getLogger(Autojar.class);
-    static final String         VERSION = 
-                                    "Autojar " + Version.VERSION + ", Copyright (C) 2004 Bernd Eggink\n" +
-                                    "http://autojar.sourceforge.net/\n" +
-                                    "using BCEL 5.1 (http://jakarta.apache.org/bcel/)\n" +
-                                    "Autojar comes with ABSOLUTELY NO WARRANTY.\n" +
-                                    "This is free software, and you may redistribute it\n" +
-                                    "under the conditions of the GNU General Public License.\n",
+public class Autojar {
+    static Logger logger = Logger.getLogger(Autojar.class);
+    static final String VERSION =
+            "Autojar " + Version.VERSION + ", Copyright (C) 2004 Bernd Eggink\n" +
+                    "http://autojar.sourceforge.net/\n" +
+                    "using BCEL 5.1 (http://jakarta.apache.org/bcel/)\n" +
+                    "Autojar comes with ABSOLUTELY NO WARRANTY.\n" +
+                    "This is free software, and you may redistribute it\n" +
+                    "under the conditions of the GNU General Public License.\n",
 
-                                HELP = 
-                                    "Usage:    java -jar autojar.jar [option...] file...\n" +
-                                    "Options:  -c classpath    where to look for classes\n" +
-                                    "          -b              use classpath for normal files\n" +
-                                    "          -C dir          change to dir temporarily\n" +
-                                    "          -d              look for dynamic loading\n" +
-                                    "          -a              add dynamically loaded classes if possible (implies d)\n" +
-                                    "          -A              add resources if possible\n" +
-                                    "          -e              search jar files in extension dirs\n" +
-                                    "          -h              output help and exit\n" +
-                                    "          -m manifest     manifest file\n" +
-                                    "          -o outfile      output file (mandatory)\n" +
-                                    "          -p filepath     where to look for non-class files\n" +
-                                    "          -q              be quiet\n" +
-                                    "          -v              be verbose\n" +
-                                    "          -V              output version information and exit\n" +
-                                    "          -x prefix       skip bases starting with prefix\n" +
-                                    "Files:    name            class name\n" +
-                                    "          path            file or directory path\n" +
-                                    "          -C dir          change to dir temporarily\n" +
-                                    "          -X pattern      skip files matching pattern\n" +
-                                    "          -X -            clear pattern list";
-        static int                  level = Ajar.STD_LEVEL;
+    HELP =
+            "Usage:    java -jar autojar.jar [option...] file...\n" +
+                    "Options:  -c classpath    where to look for classes\n" +
+                    "          -b              use classpath for normal files\n" +
+                    "          -C dir          change to dir temporarily\n" +
+                    "          -d              look for dynamic loading\n" +
+                    "          -a              add dynamically loaded classes if possible (implies d)\n" +
+                    "          -A              add resources if possible\n" +
+                    "          -e              search jar files in extension dirs\n" +
+                    "          -h              output help and exit\n" +
+                    "          -m manifest     manifest file\n" +
+                    "          -o outfile      output file (mandatory)\n" +
+                    "          -p filepath     where to look for non-class files\n" +
+                    "          -q              be quiet\n" +
+                    "          -v              be verbose\n" +
+                    "          -V              output version information and exit\n" +
+                    "          -x prefix       skip bases starting with prefix\n" +
+                    "Files:    name            class name\n" +
+                    "          path            file or directory path\n" +
+                    "          -C dir          change to dir temporarily\n" +
+                    "          -X pattern      skip files matching pattern\n" +
+                    "          -X -            clear pattern list";
+    static int level = Ajar.STD_LEVEL;
 
     //----------------------------------------------------------------------
 
-    /** Split path by pathSeparator and add results to list.
+    /**
+     * Split path by pathSeparator and add results to list.
      *
-     *  @param path         Holds path fragments 
-     *  @param list         List to which append.
+     * @param path Holds path fragments
+     * @param list List to which append.
      */
 
-    private static void addPathComponents(String path, List<String> list)
-    {
+    private static void addPathComponents(String path, List<String> list) {
         String[] comps = path.split(File.pathSeparator);
 
-        for (int i = 0; i < comps.length; ++i)
-        {
+        for (int i = 0; i < comps.length; ++i) {
             String comp = comps[i];
 
-            if (comp.indexOf('*') >= 0 || comp.indexOf('?') >= 0)
-            {
+            if (comp.indexOf('*') >= 0 || comp.indexOf('?') >= 0) {
                 // Wildcard, perform expansion
-                   
+
                 String[] wlist = FileExpand.getList(null, comp);
 
                 if (wlist == null)
@@ -92,18 +91,18 @@ public class Autojar
                 else
                     for (int j = 0; j < wlist.length; ++j)
                         list.add(wlist[j]);
-            }
-            else
+            } else
                 list.add(comp);
         }
     }
 
     //----------------------------------------------------------------------
 
-    /** Output exception. */
+    /**
+     * Output exception.
+     */
 
-    static void error(Exception ex)
-    {
+    static void error(Exception ex) {
         if (level == Ajar.DEBUG_LEVEL)
             logger.fatal(ex.getMessage(), ex);
         else
@@ -114,151 +113,149 @@ public class Autojar
 
     //----------------------------------------------------------------------
 
-    /** Output message and exit. */
+    /**
+     * Output message and exit.
+     */
 
-    static void abort(String msg)
-    {
+    static void abort(String msg) {
         logger.fatal(msg);
         System.exit(1);
     }
 
     //----------------------------------------------------------------------
 
-    /** Output exception and exit. */
+    /**
+     * Output exception and exit.
+     */
 
-    static void abort(Exception ex)
-    {
+    static void abort(Exception ex) {
         error(ex);
         System.exit(1);
     }
 
     //----------------------------------------------------------------------
 
-    /** Main class. Creates an Ajar object and processes program options and file parameters. */
+    /**
+     * Main class. Creates an Ajar object and processes program options and file parameters.
+     */
 
-    static public void main(String[] args)
-    {
-        String      basedirName = "",
-                    outfileName = null;
-        boolean     bothpaths = false,
-                    searchExtensions = false,
-                    dynresource = false;
+    static public void main(String[] args) {
+        String basedirName = "",
+                outfileName = null;
+        boolean bothpaths = false,
+                searchExtensions = false,
+                dynresource = false;
         ArrayList<String> excludes = new ArrayList<String>();
         ArrayList<String> classPathList = new ArrayList<String>();
         ArrayList<String> filePathList = null;
-        int         dynamic = Ajar.DYN_OFF;
-        File        basedir = null, 
-                    manifest = null, 
-                    outfile;
-        Ajar        autojar = null;
-        Getopt      opts = null;
+        int dynamic = Ajar.DYN_OFF;
+        File basedir = null,
+                manifest = null,
+                outfile;
+        Ajar autojar = null;
+        Getopt opts = null;
 
         // Parse options
 
-        try
-        {
+        try {
             opts = new Getopt(args, "aAbc:dDehm:o:p:qvVx:");
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             abort(ex);
         }
 
-        int     opt;
-        
-        while ((opt = opts.getOption()) >= 0)
-        {
-            switch (opt)
-            {
+        int opt;
+
+        while ((opt = opts.getOption()) >= 0) {
+            switch (opt) {
                 case 'a':   // add dynamically loaded classes automatically
-                            
-                            dynamic = Ajar.DYN_AUTO;
-                            break;
-                            
+
+                    dynamic = Ajar.DYN_AUTO;
+                    break;
+
                 case 'A':   // add dynamically loaded resources (by ClassLoader.getResource() etc.) automatically
-    
-                            dynresource = true;
 
-                            if (dynamic == Ajar.DYN_OFF)
-                                dynamic = Ajar.DYN_WARN;
+                    dynresource = true;
 
-                            break;
+                    if (dynamic == Ajar.DYN_OFF)
+                        dynamic = Ajar.DYN_WARN;
+
+                    break;
 
                 case 'b':   // use class path for normal files
-                            
-                            bothpaths = true;
-                            break;
-                            
+
+                    bothpaths = true;
+                    break;
+
                 case 'c':   // add to classpath
-                            
-                            addPathComponents(opts.getOptarg(), classPathList);
-                            break;
+
+                    addPathComponents(opts.getOptarg(), classPathList);
+                    break;
 
                 case 'd':   // dynamic loading
 
-                            dynamic = Ajar.DYN_WARN;
-                            break;
+                    dynamic = Ajar.DYN_WARN;
+                    break;
 
                 case 'D':   // debug mode, print stack trace in case of exceptions
-                            
-                            level = Ajar.DEBUG_LEVEL;
-                            break;
+
+                    level = Ajar.DEBUG_LEVEL;
+                    break;
 
                 case 'e':   // search extension
 
-                            searchExtensions = true;
-                            break;
+                    searchExtensions = true;
+                    break;
 
                 case 'h':   // print help
-                    
-                            logger.warn(VERSION);
-                            logger.warn(HELP);
-                            System.exit(0);
-                            break;
-                            
+
+                    logger.warn(VERSION);
+                    logger.warn(HELP);
+                    System.exit(0);
+                    break;
+
                 case 'm':   // manifest file
-                            
-                            manifest = new File(opts.getOptarg());
-                            break;
+
+                    manifest = new File(opts.getOptarg());
+                    break;
 
                 case 'o':   // output file
-                            
-                            outfileName = opts.getOptarg();
-                            break;
+
+                    outfileName = opts.getOptarg();
+                    break;
 
                 case 'p':   // add to file path
-                            
-                            if (filePathList == null)
-                                filePathList = new ArrayList<String>();
 
-                            addPathComponents(opts.getOptarg(), filePathList);
-                            break;
+                    if (filePathList == null)
+                        filePathList = new ArrayList<String>();
+
+                    addPathComponents(opts.getOptarg(), filePathList);
+                    break;
 
                 case 'q':   // be quiet
 
-                            level = Ajar.QUIET_LEVEL;
-                            break;
+                    level = Ajar.QUIET_LEVEL;
+                    break;
 
                 case 'v':   // verbose mode
-                            
-                            level = Ajar.VERBOSE_LEVEL;
-                            break;
+
+                    level = Ajar.VERBOSE_LEVEL;
+                    break;
 
                 case 'V':   // Version information
 
-                            logger.warn(VERSION);
-                            System.exit(0);
-                            break;
+                    logger.warn(VERSION);
+                    System.exit(0);
+                    break;
 
                 case 'x':   // exclude
-                            
-                            excludes.add(opts.getOptarg());
-                            break;
+
+                    excludes.add(opts.getOptarg());
+                    break;
 
                 default:    // wrong option
-                            
-                            logger.warn(HELP);
-                            System.exit(1);
+
+                    logger.warn(HELP);
+                    System.exit(1);
             }
         }
 
@@ -273,68 +270,59 @@ public class Autojar
 
         logger.info(Autojar.VERSION);
 
-        try
-        {
+        try {
             // Create an Ajar object
 
-            autojar = new Ajar(outfile, classPathList, excludes, filePathList, 
+            autojar = new Ajar(outfile, classPathList, excludes, filePathList,
                     manifest, dynamic, dynresource, searchExtensions, bothpaths, level);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             logger.fatal(ex.getMessage(), ex);
             System.exit(1);
         }
 
         // Process file parameters. 
-           
+
         String[] files = opts.getParms();
 
         if (files.length == 0 && autojar.getMainClass() == null)
             abort("No input files");
 
-        try
-        {
+        try {
             boolean haveBasedir = false,
                     haveExclude = false,
                     haveNotSource = false;
 
-            for (int i = 0; i < files.length; ++i)
-            {
+            for (int i = 0; i < files.length; ++i) {
                 String name = files[i];
-                
+
                 // handle pseudo options
 
-                if (name.equals("-C"))
-                {
+                if (name.equals("-C")) {
                     // basedir pseudo option
 
-                    haveBasedir = true;   
+                    haveBasedir = true;
                     haveExclude = false;
                     continue;
                 }
 
-                if (name.equals("-X"))
-                {
+                if (name.equals("-X")) {
                     // exclude pseudo option
 
-                    haveExclude = true;   
-                    haveBasedir = false;   
+                    haveExclude = true;
+                    haveBasedir = false;
                     continue;
                 }
 
-                if (name.equals("-X-"))
-                {
+                if (name.equals("-X-")) {
                     // clear excludes pseudo option
 
                     autojar.clearFileExcludes();
-                    haveExclude = false;   
-                    haveBasedir = false;   
+                    haveExclude = false;
+                    haveBasedir = false;
                     continue;
                 }
 
-                if (name.equals("-Y"))
-                {
+                if (name.equals("-Y")) {
                     // don't copy source classes
 
                     haveNotSource = true;
@@ -344,8 +332,7 @@ public class Autojar
 
                 // not a pseudo option
 
-                if (haveBasedir)
-                {
+                if (haveBasedir) {
                     // the basedir 
 
                     basedirName = files[i];
@@ -357,8 +344,7 @@ public class Autojar
 
                 // check if excluded 
 
-                if (haveExclude)
-                {
+                if (haveExclude) {
                     if (files[i].equals("-"))
                         autojar.clearFileExcludes();
                     else
@@ -369,51 +355,40 @@ public class Autojar
                 }
 
                 logger.info("Argument: " + name);
-                
-                boolean hasWildcards = name.indexOf('*') >= 0 || name.indexOf('?') >= 0,
-                        isClass = ! name.startsWith(File.separator) && name.endsWith(".class");
 
-                if (name.equals("."))
-                {
+                boolean hasWildcards = name.indexOf('*') >= 0 || name.indexOf('?') >= 0,
+                        isClass = !name.startsWith(File.separator) && name.endsWith(".class");
+
+                if (name.equals(".")) {
                     // treat "." like "*" 
-                       
+
                     if (basedir == null)        // Hm...
                         basedir = new File(System.getProperty("user.dir"));
 
                     autojar.handleFileList(basedir, basedir.list());
-                }
-                else if (isClass)
-                {
+                } else if (isClass) {
                     // lookup class path
 
-                    autojar.lookupClass(name.substring(0, name.length() - 6));  
-                }
-                else 
-                {
+                    autojar.lookupClass(name.substring(0, name.length() - 6));
+                } else {
                     // normal file or pattern
 
                     File file = new File(basedir, name);
 
-                    if (! hasWildcards && file.exists())
-                    {
+                    if (!hasWildcards && file.exists()) {
                         // not a pattern and file exists: include without lookup
 
-                        autojar.handleFile(basedir, name, ! haveNotSource);
-                    }
-                    else if (hasWildcards)
-                    {
+                        autojar.handleFile(basedir, name, !haveNotSource);
+                    } else if (hasWildcards) {
                         // expand wildcards
-                    
+
                         String[] list = FileExpand.getList(basedir, name);
 
-                        if (list != null && list.length > 0)
-                        {
+                        if (list != null && list.length > 0) {
                             // some files match, include the list
 
                             autojar.handleFileList(basedir, list);
-                        }
-                        else
-                        {
+                        } else {
                             // no match, lookup if not behind -C
 
                             if (basedir == null)
@@ -421,9 +396,7 @@ public class Autojar
                             else
                                 autojar.addMissing(file.getPath());
                         }
-                    }
-                    else
-                    {
+                    } else {
                         // Not a pattern, lookup if relative
 
                         if (file.isAbsolute())
@@ -439,13 +412,9 @@ public class Autojar
                 basedir = null;
                 haveNotSource = false;
             }
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             error(ex);
-        }
-        finally
-        {
+        } finally {
             autojar.close();
         }
 

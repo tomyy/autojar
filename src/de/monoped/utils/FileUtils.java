@@ -17,33 +17,28 @@ package de.monoped.utils;
  * monoped@users.sourceforge.net
  */
 
-import java.io.*;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
-public class FileUtils
-{
-    static public boolean patternMatches(String pattern, String name)
-    {
+public class FileUtils {
+    static public boolean patternMatches(String pattern, String name) {
         if (pattern == null)
             return true;
-        
-        int     iExpr = 0, 
+
+        int iExpr = 0,
                 iPath = 0,
                 lenPattern = pattern.length(),
                 lenName = name.length();
         boolean ok = false;
 
-loop:
-        while (iExpr < lenPattern)
-        {
+        loop:
+        while (iExpr < lenPattern) {
             char charExpr = pattern.charAt(iExpr);
 
-            switch (charExpr)
-            {
-                case '?':
-                {
+            switch (charExpr) {
+                case '?': {
                     // any character
-                    
+
                     if (iPath >= lenName)
                         break loop;
 
@@ -52,16 +47,14 @@ loop:
                     break;
                 }
 
-                case '*':
-                {
+                case '*': {
                     // character sequence 
-                    
+
                     int nqu = 0;
-                    
+
                     // find normal chars in pattern after '*', count '?'s
 
-                    while (++iExpr < lenPattern)
-                    {
+                    while (++iExpr < lenPattern) {
                         char c = pattern.charAt(iExpr);
 
                         if (c == '?')
@@ -69,35 +62,30 @@ loop:
                         else if (c != '*')
                             break;
                     }
-                     
-                    if (iExpr >= lenPattern)
-                    {
+
+                    if (iExpr >= lenPattern) {
                         // at end, no normal chars after *, just check '?'s
-                           
+
                         ok = lenName - iPath >= nqu;
                         break loop;
-                    }
-                    else
-                    {
+                    } else {
                         // extract normal part
 
                         int jex = iExpr;
 
-                        while (++jex < lenPattern)
-                        {
+                        while (++jex < lenPattern) {
                             char c = pattern.charAt(jex);
 
                             if (c == '*' || c == '?')
                                 break;
                         }
-                    
-                        String  normal = pattern.substring(iExpr, jex);
-                        int     ifound = name.indexOf(normal, iPath);
 
-                        if (ifound < 0 || ifound - iPath < nqu)
-                        {
+                        String normal = pattern.substring(iExpr, jex);
+                        int ifound = name.indexOf(normal, iPath);
+
+                        if (ifound < 0 || ifound - iPath < nqu) {
                             // not found in name, or too early
-                               
+
                             break loop;
                         }
 
@@ -109,11 +97,10 @@ loop:
                         break;
                     }
                 }
-                
-                default:
-                {
+
+                default: {
                     // normal char
-                       
+
                     if (iPath >= lenName || charExpr != name.charAt(iPath))
                         break loop;
 
@@ -123,23 +110,21 @@ loop:
             }
         }
 
-        if (! ok) 
+        if (!ok)
             ok = iPath == lenName;
 
         return ok;
-        
+
     }
 
     //----------------------------------------------------------------------
 
-    static public boolean patternMatches(List patterns, String name)
-    {
+    static public boolean patternMatches(List patterns, String name) {
         if (patterns == null)
             return false;
 
-        for (Iterator it = patterns.iterator(); it.hasNext(); )
-        {
-            String pat = (String)it.next();
+        for (Iterator it = patterns.iterator(); it.hasNext(); ) {
+            String pat = (String) it.next();
 
             if (patternMatches(pat, name))
                 return true;
@@ -147,7 +132,7 @@ loop:
 
         return false;
     }
-                    
-    
+
+
 }
 
