@@ -176,8 +176,12 @@ public class Ajar {
 
         String bootPath = System.getProperty("sun.boot.class.path");
 
-        classpath.add(bootPath);
-        bootPathComps = bootPath.split(File.pathSeparator);
+        if (bootPath != null) {
+            classpath.add(bootPath);
+            bootPathComps = bootPath.split(File.pathSeparator);
+        } else {
+            bootPathComps = new String[0];
+        }
 
         if (classPathList != null)
             for (Iterator it = classPathList.iterator(); it.hasNext(); ) {
