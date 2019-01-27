@@ -34,7 +34,7 @@ task uberJar(type: Jar) {
 
 dependencies {
     compile 'log4j:log4j:1.2.17'
-    compile 'org.apache.bcel:bcel:5.2'
+    compile 'org.apache.bcel:bcel:6.2'
 }
 
 repositories {
