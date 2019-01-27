@@ -1006,6 +1006,10 @@ public class Ajar {
     boolean lookupClassInternal(String path) {
         if (doneFiles.contains(path))         // already done?
             return true;
+        if (path.startsWith("java/"))
+            return true;
+        if (path.startsWith("javax/"))
+            return true;
 
         EFile classFile;
 
