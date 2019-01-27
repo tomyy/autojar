@@ -1,0 +1,41 @@
+apply plugin: 'java'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes("Main-Class": "de.monoped.autojar.Autojar")
+    }
+}
+
+task uberJar(type: Jar) {
+    archiveAppendix = 'uber'
+
+    from sourceSets.main.output
+
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+}
+
+dependencies {
+    compile 'log4j:log4j:1.2.17'
+    compile 'org.apache.bcel:bcel:5.2'
+}
+
+repositories {
+    jcenter()
+}
+
+wrapper {
+    gradleVersion = '5.1.1'
+    distributionType = "ALL"
+}
+
